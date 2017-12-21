@@ -10,7 +10,8 @@ function varargout = proj2plane(pln,X)
 %           planeModel object
 %
 %   [..., meanError] = PROJ2PLANE(...) additionally returns the mean 
-%   error of the distance of provided points and projections.
+%   error of the Euclidean distance between the provided points and 
+%   their corresponding projections.
 %
 %   [..., Error] = PROJ2PLANE(...) additionally returns errors for each
 %   projected point.
@@ -18,7 +19,7 @@ function varargout = proj2plane(pln,X)
 %   References
 %       [1] http://mathworld.wolfram.com/Point-PlaneDistance.html
 %
-%   See also fitplane, pcfitplane
+%   See also fitplane, pcfitplane, planeModel
 %
 %   M. Kutzer, 20Dec2017, USNA
 
