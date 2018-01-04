@@ -17,7 +17,7 @@ function varargout = fitPlane(pnts)
 %       [1] http://mathworld.wolfram.com/Plane.html
 %       [2] http://math.stackexchange.com/questions/99299/best-fitting-plane-given-a-set-of-points
 %
-%   See also pcfitplane, proj2plane
+%   See also pcfitplane, proj2plane, inPlane
 %
 %   M. Kutzer 10July2015, USNA
 

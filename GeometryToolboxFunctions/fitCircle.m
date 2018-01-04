@@ -3,13 +3,14 @@ function varargout = fitCircle(X)
 %   cfit = FITCIRCLE(X) fits a circle to set of N three-dimensional points.
 %   
 %       X    - 3xN array containing points
-%       cfit - structured array containint the following fields
+%       cfit - structured array containing the following fields
 %           cfit.Center - 3x1 center of the circle
 %           cfit.Normal - 3x1 normal to the circle
 %           cfit.Radius - radius of the circle
 %
 %   [..., meanError] = FITCIRCLE(...) additionally returns the mean error 
-%   of the distance of provided points and fit.
+%   of the distance betweem provided points and their corresponding 
+%   projections to the fit.
 %
 %   See also
 %
