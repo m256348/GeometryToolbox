@@ -91,7 +91,9 @@ else
     ptc = surf2patch(srf);
     delete(srf);
     p = patch(axs,ptc,'EdgeColor','None','FaceColor','b','FaceAlpha',0.5);
-    
+    % TODO - Something is wrong with the MATRIX PROPERTY HERE. It may be an
+    % issue with TRIAD.
+    isSE(H)
     h = triad('Parent',axs,'Scale',min( abs(r) ),'LineWidth',1.5,'Matrix',H);
     set(p,'Parent',h);
     varargout{1} = p;
