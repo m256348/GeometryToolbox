@@ -4,9 +4,9 @@ function varargout = fitSphere(X)
 %   points.
 %
 %       X    - 3xN array containing points
-%       sfit - 1x4 array containing sphere parameters [a,b,c,r] such that 
-%           (x-a)^2 + (y-b)^2 + (z-c)^2 = r^2 *or* a valid sphereModel
-%           object if the sphereModel class is available.
+%       sfit - a sphereModel object if the sphereModel class is available 
+%           *or* a 1x4 array containing sphere parameters [a,b,c,r] such  
+%           that (x-a)^2 + (y-b)^2 + (z-c)^2 = r^2
 %
 %   [..., meanError] = FITSPHERE(...) additionally returns the mean error 
 %   of the distance of provided points and fit.
