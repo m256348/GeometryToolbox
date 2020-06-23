@@ -142,6 +142,12 @@ for i = 1:n
     end
 end
 
+%% Check if no intersection occurs
+if isempty(theta)
+    afit = [];
+    return;
+end
+
 %% Keep arcs that are contained in the polygon
 thetas = sort(theta);
 thetas(end+1) = wrapTo2Pi(thetas(1));
