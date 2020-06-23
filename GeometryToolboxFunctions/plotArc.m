@@ -11,7 +11,7 @@ function h = plotArc(varargin)
 %   object(s).
 %
 %   Inputs:
-%        axs - *optional* handle of the parent of the plotted circle
+%        axs - *optional* handle of the parent of the plotted arc
 %       afit - structured array containing the following fields
 %           afit.Center    - 3x1 center of the arc
 %           afit.Rotation  - 3x3 orientation of the arc (rotation is 
@@ -21,7 +21,7 @@ function h = plotArc(varargin)
 %                            angles used to define the arc.
 %                AngleLims(i,:) - lower and upper bounds of the angle
 %                                 defining the ith arc intersection. 
-%          N - *optional* number of points used to plot the circle
+%          N - *optional* number of points used to plot the arc
 %
 %   Outputs:
 %       h - line object handle(s) for each of the angle limit pairs 
@@ -56,7 +56,7 @@ switch get(axs,'Type')
         hold(axs,'on');
 end
 
-% Define circle
+% Define arc
 if nargin >= nargin_i
 	afit = varargin{nargin_i};
     nargin_i = nargin_i+1;
