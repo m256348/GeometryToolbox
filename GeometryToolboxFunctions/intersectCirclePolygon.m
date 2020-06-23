@@ -12,18 +12,21 @@ function afit = intersectCirclePolygon(cfit,Xv)
 %
 %   Outputs:
 %       afit - structured array containing the following fields
-%           afit.Center      - 3x1 center of the arc
-%           afit.Rotation    - 3x3 orientation of the arc (rotation is 
+%           afit.Center    - 3x1 center of the arc
+%           afit.Rotation  - 3x3 orientation of the arc (rotation is 
 %                              about the z-direction)
-%           afit.AngleLimits - Nx2 array containing the bounds of the 
-%                              angles used to define the arc.
-%                AngleLimits(i,:) - lower and upper bounds of the angle
-%                                   defining the ith arc intersection. 
+%           afit.Radius    - radius of the arc
+%           afit.AngleLims - Nx2 array containing the bounds of the 
+%                            angles used to define the arc.
+%                AngleLims(i,:) - lower and upper bounds of the angle
+%                                 defining the ith arc intersection. 
 %
 %   M. Kutzer, 22Jun2020, USNA
 
 % TODO - make "zero" value something that the user can define
 ZERO = 1e-6;
+
+debugON = true;
 
 %% Check inputs
 narginchk(2,2);
@@ -73,8 +76,19 @@ X_w(4,:) = 1;
 
 X_c = invSE(H_c2w) * X_w;
 
-hh = triad('Matrix',H_c2w);
-plot(hh,X_c(1,:),X_c(2,:),'db');
+if debugON
+    % Plot inputs
+    fig = figure('Name','intersectCirclePolygon.m');
+    axs = axes('Parent',fig);
+    hold(axs,'on');
+    daspect(axs,[1 1 1]);
+    plotCircle(axs,cfit);
+    plotPolygon(axs,Xv);
+    % Plot body-fixed coordinate frame
+    hh = triad('Matrix',H_c2w);
+    % Plot body-fixed vertices
+    plot(hh,X_c(1,:),X_c(2,:),'db');
+end
 
 %% Fit segments to edges of polygon & find intersection(s)
 theta = [];
@@ -86,32 +100,70 @@ for i = 1:n
     end
     
     M = fitSegment([X_c(1:2,i),X_c(1:2,j)]);
-    
+
     % Let M = [A,B]
     A = M(:,1);
     B = M(:,2);
     
     % a*s^2 + b*s + c = 0
     a = dot(A,A);
-    b = dot(A,B);
-    c = dot(B,B) - cfit.Radius;
+    b = 2*dot(A,B);
+    c = dot(B,B) - (cfit.Radius)^2;
     
     if (b^2 - 4*a*c) < 0
-        % Point is imaginary
+        % Ignore - Point is imaginary
     else
         % Intersect (1)
         s = (-b + sqrt(b^2 - 4*a*c))/(2*a);
-        if s >= 0 && s <= 1
+        if s >= 0 && s <= 1 % s \in [0,1]
             X_int = M*[s; 1];
-            plot(hh,X_int(1,:),X_int(2,:),'*m');
             theta(end+1) = atan2(X_int(2),X_int(1));
+            
+            if debugON
+                plot(hh,X_int(1,:),X_int(2,:),'*m');
+            end
         end
         % Intersect (2)
         s = (-b - sqrt(b^2 - 4*a*c))/(2*a);
-        if s >= 0 && s <= 1
+        if s >= 0 && s <= 1 % s \in [0,1]
             X_int = M*[s; 1];
-            plot(hh,X_int(1,:),X_int(2,:),'*m');
             theta(end+1) = atan2(X_int(2),X_int(1));
+            
+            if debugON
+                plot(hh,X_int(1,:),X_int(2,:),'*m');
+            end
         end
     end
 end
+
+%% Keep arcs that are contained in the polygon
+thetas = sort(theta);
+thetas(end+1) = wrapTo2Pi(thetas(1));
+
+% TODO - speed this up be removing loop!
+for i = 2:numel(thetas)
+    % Define mid-point of arc for testing
+    theta = linspace(thetas(i-1),thetas(i),3);
+    xq(i-1) = cfit.Radius.*cos(theta(2));
+    yq(i-1) = cfit.Radius.*sin(theta(2));
+end
+
+in = inpolygon(xq,yq,X_c(1,:),X_c(2,:));
+
+idx = find(in);
+AngleLims = [thetas(idx).', thetas(idx+1).'];
+
+if debugON
+    for i = 1:size(AngleLims,1)
+        theta = linspace(AngleLims(i,1),AngleLims(i,2),100);
+        xx = cfit.Radius.*cos(theta);
+        yy = cfit.Radius.*sin(theta);
+        plot(hh,xx,yy,'m','LineWidth',3);
+    end
+end
+
+%% Package outputs
+afit.Center = reshape(cfit.Center,[],1);
+afit.Rotation = H_c2w(1:3,1:3);
+afit.Radius = cfit.Radius;
+afit.AngleLims = AngleLims;
