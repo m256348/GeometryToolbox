@@ -26,7 +26,7 @@ function afit = intersectCirclePolygon(cfit,Xv)
 % TODO - make "zero" value something that the user can define
 ZERO = 1e-6;
 
-debugON = true;
+debugON = false;
 
 %% Check inputs
 narginchk(2,2);
