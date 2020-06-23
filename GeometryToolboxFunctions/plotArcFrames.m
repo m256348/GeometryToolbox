@@ -31,7 +31,7 @@ function h = plotArcFrames(varargin)
 %   M. Kutzer, 23Jun2020, USNA
 
 %% Check inputs
-narginchk(1,2);
+narginchk(1,3);
 
 % Define parent
 parentGiven = false;
