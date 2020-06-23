@@ -30,7 +30,7 @@ abcd = reshape(abcd,1,[]);
 sfit = sphereParam2Model(sfit);
 
 %% Find center
-cfit.Center = reshape(proj2plane(abcd,sfit.Center),[],1);
+cfit.Center = reshape(proj2plane(abcd,reshape(sfit.Center,[],1)),[],1);
 
 %% Define normal
 cfit.Normal = reshape(abcd(1:3)./norm(abcd(1:3)),[],1);

@@ -72,19 +72,24 @@ else
     N = 100;
 end
 
+%% Check for empty afit
+if isempty(afit)
+    h = [];
+    return
+end
+
 %% Define circle frame
 H_c2w = eye(4);
 H_c2w(1:3,1:3) = afit.Rotation;
 H_c2w(1:3,4) = afit.Center;
 
 %% Define arcs
-theta = linspace(0,2*pi,N+1);
-theta(end) = [];
-
 for i = 1:size(afit.AngleLims,1)
+    theta = linspace(afit.AngleLims(i,1),afit.AngleLims(i,2),N);
+    
     % Define body-fixed points
-    X_c(1,:) = cfit.Radius.*cos(theta);
-    X_c(2,:) = cfit.Radius.*sin(theta);
+    X_c(1,:) = afit.Radius.*cos(theta);
+    X_c(2,:) = afit.Radius.*sin(theta);
     X_c(3,:) = 0;
     X_c(4,:) = 1;
     

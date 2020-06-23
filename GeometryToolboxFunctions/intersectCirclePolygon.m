@@ -33,6 +33,12 @@ narginchk(2,2);
 
 % TODO - actually check the inputs
 
+%% Check for empty cfit
+if isempty(cfit)
+    afit = [];
+    return;
+end
+
 %% Define the polygon plane
 abcd = fitPlane(Xv);
 
