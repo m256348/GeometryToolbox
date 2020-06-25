@@ -23,7 +23,7 @@ function afit = intersectCirclePolygon(cfit,Xv,varargin)
 %           afit.AngleLims - Nx2 array containing the bounds of the 
 %                            angles used to define the arc.
 %           afit.ID        - 1x1 identifying value (empty if no value is
-%                            specified.
+%                            specified)
 %                AngleLims(i,:) - lower and upper bounds of the angle
 %                                 defining the ith arc intersection. 
 %
