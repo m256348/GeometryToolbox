@@ -1,7 +1,9 @@
-function afit = intersectCirclePolygon(cfit,Xv)
+function afit = intersectCirclePolygon(cfit,Xv,varargin)
 % INTERSECTCIRCLEPOLYGON defines an arc representing the intersection
 % between a planar polygon and a circle lying on the same plane.
 %   afit = INTERSECTCIRCLEPOLYGON(cfit,Xv) 
+%
+%   afit = INTERSECTCIRCLEPOLYGON(cfit,Xv,id)
 %
 %   Inputs:
 %       cfit - structured array containing the following fields
@@ -9,6 +11,8 @@ function afit = intersectCirclePolygon(cfit,Xv)
 %           cfit.Normal - 3x1 normal to the circle
 %           cfit.Radius - radius of the circle
 %         Xv - 3xN array containing vertices of the polygon
+%         id - 1x1 *optional* identifying number/flag this is set to an 
+%              empty set if no value is specified.
 %
 %   Outputs:
 %       afit - structured array containing the following fields
@@ -18,6 +22,8 @@ function afit = intersectCirclePolygon(cfit,Xv)
 %           afit.Radius    - radius of the arc
 %           afit.AngleLims - Nx2 array containing the bounds of the 
 %                            angles used to define the arc.
+%           afit.ID        - 1x1 identifying value (empty if no value is
+%                            specified.
 %                AngleLims(i,:) - lower and upper bounds of the angle
 %                                 defining the ith arc intersection. 
 %
@@ -29,7 +35,13 @@ ZERO = 1e-6;
 debugON = false;
 
 %% Check inputs
-narginchk(2,2);
+narginchk(2,3);
+
+if nargin < 3
+    id = [];
+else
+    id = varargin{1};
+end
 
 % TODO - actually check the inputs
 
@@ -179,3 +191,4 @@ afit.Center = reshape(cfit.Center,[],1);
 afit.Rotation = H_c2w(1:3,1:3);
 afit.Radius = cfit.Radius;
 afit.AngleLims = AngleLims;
+afit.ID = id;
