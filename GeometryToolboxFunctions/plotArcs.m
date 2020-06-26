@@ -95,6 +95,7 @@ for k = 1:numel(afits)
         theta = afit.AngleLims(i,1):dtheta:afit.AngleLims(i,2);
         
         % Define body-fixed points
+        X_c = [];   % Re-initialize X_c
         X_c(1,:) = afit.Radius.*cos(theta);
         X_c(2,:) = afit.Radius.*sin(theta);
         X_c(3,:) = 0;
