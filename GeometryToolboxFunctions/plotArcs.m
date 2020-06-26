@@ -1,4 +1,4 @@
-function h = plotArcs(varargin)
+function [h,h_e] = plotArcs(varargin)
 % PLOTARCS plots multiple arcs with poinst equally spaced using constant 
 % arc length.
 %   h = PLOTARCS(afits) plots one or more arcs with a default change in 
@@ -112,3 +112,7 @@ end
 %% Plot arc
 % [0.224,1.000,0.078] - Neon Green
 h = plot3(X_w(1,:),X_w(2,:),X_w(3,:),'Parent',axs,'Color',[0.224,1.000,0.078],'LineWidth',2);
+
+%% Plot end points
+h_e(1) = plot3(X_w(1,1)  ,X_w(2,1)  ,X_w(3,1)  ,'Parent',axs,'Color','g','Marker','o','MarkerSize',6,'LineWidth',1.0);
+h_e(2) = plot3(X_w(1,end),X_w(2,end),X_w(3,end),'Parent',axs,'Color','r','Marker','x','MarkerSize',6,'LineWidth',1.0);
