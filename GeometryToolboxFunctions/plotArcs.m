@@ -10,6 +10,9 @@ function h = plotArcs(varargin)
 %   h = PLOTARCS(axs,___) allows the user to specify the parent of the 
 %   plot object(s).
 %
+%   NOTE: This function assumes the arcs specified are continues in the
+%         order given.
+%
 %   Inputs:
 %         axs - *optional* handle of the parent of the plotted arc
 %       afits - structured array containing the following fields
@@ -74,8 +77,8 @@ if isempty(afits)
     return
 end
 
-%% Plot each arc
-h = [];
+%% Define world points (assuming piecewise arcs are continuous) 
+X_w = [];
 for k = 1:numel(afits)
     afit = afits(k);
     
@@ -101,18 +104,11 @@ for k = 1:numel(afits)
         X_c(3,:) = 0;
         X_c(4,:) = 1;
         
-        % Define world-referenced points
-        X_w = H_c2w*X_c;
-        
-        % Plot arc
-        % [0.224,1.000,0.078] - Neon Green
-        hh = plot3(X_w(1,:),X_w(2,:),X_w(3,:),'Parent',axs,'Color',[0.224,1.000,0.078],'LineWidth',2);
-        
-        % Append plot object
-        if isempty(h)
-            h = hh;
-        else
-            h(end+1) = hh;
-        end
+        % Append world-referenced points
+        X_w = [X_w, H_c2w*X_c];
     end
 end
+
+%% Plot arc
+% [0.224,1.000,0.078] - Neon Green
+h = plot3(X_w(1,:),X_w(2,:),X_w(3,:),'Parent',axs,'Color',[0.224,1.000,0.078],'LineWidth',2);
