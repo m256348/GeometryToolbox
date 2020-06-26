@@ -97,6 +97,15 @@ for k = 1:numel(afits)
         % Define theta
         theta = afit.AngleLims(i,1):dtheta:afit.AngleLims(i,2);
         
+        % Check for problem child
+        if numel(theta) < 1
+            warning('No angles produced to visualize arc!');
+            fprintf(' -> afits(%d).AngleLims(%d,:) = [%.8f, %.8f]\n',k,i,afit.AngleLims(i,:));
+            fprintf(' -> ds = %.8f | dtheta = %.8f\n',ds,dtheta);
+            fprintf(' -> Using angle limits...\n');
+            theta = afit.AngleLims(i,:);
+        end
+        
         % Define body-fixed points
         X_c = [];   % Re-initialize X_c
         X_c(1,:) = afit.Radius.*cos(theta);
