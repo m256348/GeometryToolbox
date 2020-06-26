@@ -162,7 +162,8 @@ end
 
 %% Keep arcs that are contained in the polygon
 thetas = sort(theta);
-thetas(end+1) = wrapTo2Pi(thetas(1));
+%thetas(end+1) = wrapTo2Pi(thetas(1));  % ERROR!
+thetas(end+1) = thetas(1) + 2*pi;       % Correction!
 
 % TODO - speed this up be removing loop!
 for i = 2:numel(thetas)
