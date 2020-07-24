@@ -1,13 +1,19 @@
 function [intEE,intEV,intVV,intPt] = intersectSegmentSegment(p1,p2)
 %INTERSECTSEGMENTSEGMENT finds intersection(s) between two segments.
 %   [intEE,intEV,intVV,intPt] = INTERSECTSEGMENTSEGMENT(p1,p2) fits a
-%   parametric line segment from p1(:,1) to p1(:,2) and p2(:,1) to p2(:,2);
-%   calculates the intersection conditions; and calculates the point(s) of 
-%   intersection.
+%   parametric line segment from p1(:,1) to p1(:,2), and a segment from 
+%   p2(:,1) to p2(:,2); calculates the intersection conditions; and 
+%   calculates the point(s) of intersection when applicable.
 %
 %   Inputs:
-%       p1 = [x1_1, x1_2; y1_1, y1_2]
-%       p2 = [x2_1, x2_2; y2_1, y2_2]
+%       p1 - nx2 array containing n-dimensional segment end-points as 
+%            column vectors
+%       p2 - nx2 array containing n-dimensional x/y segment end-points as 
+%            column vectors
+%
+%       In 2D:
+%           p1 = [x1_1, x1_2; y1_1, y1_2]
+%           p2 = [x2_1, x2_2; y2_1, y2_2]
 %
 %   Outputs:
 %       intEE - scalar binary that is true if there is at least one 
@@ -16,18 +22,53 @@ function [intEE,intEV,intVV,intPt] = intersectSegmentSegment(p1,p2)
 %               edge/vertex intersect
 %       intVV - scalar binary that is true if there is at least one 
 %               vertex/vertex intersect
-%       intPt - [x; y] coordinate(s) of the point or points of 
-%               intersection.
-%           intPt = [];            % No intersection exists
-%           intPt = [x; y];        % One intersection exists *or* extending
-%                                  % the segments into lines yields one 
-%                                  % intersection (this is for debugging)
-%           intPt = [x1,x2;y1,y2]; % Two intersections exist (the segments 
-%                                  % are parallel, colinear, and 
-%                                  % overlapping)
+%       intPt - array containing coordinate(s) of the point or points  
+%               of intersection (empty set, nx1, or nx2 array).
+%           intPt = [];                 % No intersection exists
+%           intPt = [x; y; ...];        % One intersection exists *or* 
+%                                       % extending the segments into lines
+%                                       % yields one intersection (this is 
+%                                       % for debugging)
+%           intPt = [x1,x2;y1,y2; ...]; % Two intersections exist (the  
+%                                       % segments are parallel, colinear,  
+%                                       % and overlapping)
+%
+%   Output Combinations:
+%       (1 ) intEE = 0; intEV = 0; intVV = 0;
+%       (2 ) intEE = 1; intEV = 0; intVV = 0;
+%       (3 ) intEE = 0; intEV = 1; intVV = 0;
+%       (4 ) intEE = 0; intEV = 0; intVV = 1;
+%       (5a) intEE = 1; intEV = 1; intVV = 0;
+%       (5b) intEE = 1; intEV = 0; intVV = 1;
+%            intEE = 0; intEV = 1; intVV = 1; <- NOT POSSIBLE
+%       (5c) intEE = 1; intEV = 1; intVV = 1;
+%
+%   Output Combinations Explained:
+%       (1) The segments do not intersect:
+%           -> intEE = 0; intEV = 0; intVV = 0;
+%       (2) The edge of each segment intersects:
+%           -> intEE = 1; intEV = 0; intVV = 0;
+%       (3) The edge of one segment intersects with the vertex of the
+%           other:
+%           -> intEE = 0; intEV = 1; intVV = 0;
+%       (4) A vertex of one segment is co-located with a vertex of the
+%           other segment:
+%           -> intEE = 0; intEV = 0; intVV = 1;
+%       (5) The segments are parallel, co-linear, and overlapping:
+%           (a) A vertex of one segment lies on the edge of the other 
+%               segment and vice versa, or the both vertices of one segment 
+%               lie on the other segment:
+%               -> intEE = 1; intEV = 1; intVV = 0;
+%           (b) The segments share both vertices:
+%               -> intEE = 1; intEV = 0; intVV = 1;
+%           (c) The segments share a vertex, and the vertex of one segment
+%               lies on the edge of the other segment:
+%               -> intEE = 1; intEV = 1; intVV = 1;
 %
 %   Example(s):
 %       (1) Check if two segments intersect:
+%       p1 = rand(2,2);
+%       p2 = rand(2,2);
 %       [intEE,intEV,intVV] = intersectSegmentSegment(p1,p2);
 %       if any( [intEE,intEV,intVV] )
 %           fprintf('Segments intersect.\n');
@@ -42,7 +83,8 @@ function [intEE,intEV,intVV,intPt] = intersectSegmentSegment(p1,p2)
 % Updates:
 %   23Jul2020 - Full overhaul to address:
 %               (1) singularity issues and 
-%               (2) special case conditions associated with parallel lines 
+%               (2) special case conditions associated with parallel lines
+%   24Jul2020 - Extended to n-dimensional segments
 
 %% Define "zero"
 ZERO = 1e-6;    % TODO - use zeroFPError.m
@@ -73,9 +115,14 @@ BB = (B2 - B1); % "offset matrix
 
 %% Special Case: Segments are Parallel
 % Check if lines are parallel
-if abs( det(AA) ) < ZERO
+
+%if abs( det(AA) ) < ZERO % <- Only works for 2D points
+
+% Segments are parallel if:
+%   dot(A1,A2) = +/- norm(A1)*norm(A2)
+if abs( abs(dot(A1,A2)) - abs(norm(A1)*norm(A2)) ) < ZERO
     % Lines are parallel!
-    warning('Segments are parallel or near parallel. det(AA) = %.10f',det(AA));
+    %warning('Segments are parallel or near parallel. det(AA) = %.10f',det(AA));
     
     % Check if segments overlap
     M3 = fitSegment(B1,B2); % Fit a segment to the "offsets" of each segment
@@ -191,7 +238,22 @@ end
 
 %% Calculate s-values of intersection
 % Find parametric intersection
-s1s2 = AA^(-1) * BB;
+if size(AA,1) == size(AA,2)
+    % Two-dimensional Segment
+    s1s2 = AA^(-1) * BB;
+else
+    % n-dimensional segment (n > 2)
+    s1s2 = pinv(AA) * BB;
+    % Check "intersection" to see if it is the same point
+    if norm( M1*[s1s2(1); 1] - M2*[s1s2(2); 1] ) > ZERO
+        % No actual intersection exists
+        intEE = false; % No edge/edge intersections
+        intEV = false; % No edge/vertex intersections
+        intVV = false; % No vertex/vertex intresections
+        intPt = [];    % No points of intersection
+        return
+    end
+end
 
 %% Check parameter bounds 
 IsOn = ( (s1s2+ZERO) >= 0 & (s1s2-ZERO) <= 1); % Intersections are on the segment
@@ -199,7 +261,7 @@ NotOn = ~IsOn;                                 % Intersections are *not* on the 
 
 %% Check if intersection occurs off of at least one segment (i.e. no actual intersection)
 if any(NotOn)
-    fprintf('Intersect off-segment\n')
+    %fprintf('Intersect off-segment\n')
     % Intersection is not on at least one of the segments
     intEE = false; % No edge/edge intersections
     intEV = false; % No edge/vertex intersections
