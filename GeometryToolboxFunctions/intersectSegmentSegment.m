@@ -86,6 +86,18 @@ function [intEE,intEV,intVV,intPt] = intersectSegmentSegment(p1,p2)
 %               (2) special case conditions associated with parallel lines
 %   24Jul2020 - Extended to n-dimensional segments
 
+%% Check inputs
+narginchk(2,2);
+if size(p1,2) ~= 2
+    error('First segment must be defined using two end-points.');
+end
+if size(p2,2) ~= 2
+    error('Second segment must be defined using two end-points.');
+end
+if size(p1,1) ~= size(p2,1)
+    error('First and second segments must be defined in the same dimensional space.');
+end
+
 %% Define "zero"
 ZERO = 1e-6;    % TODO - use zeroFPError.m
 
