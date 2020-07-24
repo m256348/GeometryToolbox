@@ -1,28 +1,31 @@
-function M = fitSegment(X)
-% FITSEGMENT fits a segment to two N-dimensional points
-%   M = fitSegment(X) creates a matrix of coefficients for a parametric
-%   representation of a segment such that:
-%       X(:,1) = M*[0; 1];  % s = 0
-%       X(:,2) = M*[1; 1];  % s = 1
+function M = fitSegment(p1,p2)
+% FITSEGMENT fits an n-dimensional parametric equation for a segment
+% between two points.
+%   M = FITSEGMENT(p1,p2) fits a segment between p1 and p2 such that:
+%       p(s) = M*[s; 1] where s \in [0,1]
+%       p(0) = M*[0; 1] = p1;
+%       p(1) = M*[1; 1] = p2;
 %
 %   Inputs:
-%       X - Nx2 array containing the N-dimensional end points of the 
-%           segment
+%       p1 - n-element array representing the start-point in n-dimensional 
+%            space
+%       p2 - n-element array representing the end-point in n-dimensional
+%            space
 %
 %   Outputs:
-%       M - Nx2 array containing coefficients
+%       M - nx2 array containing coefficients for the segment
 %
-%   M. Kutzer, 22Jun2020, USNA
+%   M. Kutzer, 23Jul2020, USNA
 
 %% Check inputs
-narginchk(1,1);
-
-if size(X,2) ~= 2
-    error('Two points must be specified. X should be an Nx2 array.');
+if numel(p1) ~= numel(p2)
+    error('Specified points must be the same dimension.');
 end
 
-% TODO - check X to make sure that the points are unique
+% Make sure points are nx1
+p1 = reshape(p1,[],1);
+p2 = reshape(p2,[],1);
 
-%% Fit coefficients
-S = [0, 1; 1, 1];
-M = X * (S^(-1));
+%% Fit segment
+M(:,1) = p2 - p1;
+M(:,2) = p1; 

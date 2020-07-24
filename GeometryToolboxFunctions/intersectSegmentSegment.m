@@ -1,106 +1,244 @@
-function [intEE,intEV,intVV,intPt] = intersectSegmentSegment(p1, p2)
+function [intEE,intEV,intVV,intPt] = intersectSegmentSegment(p1,p2)
 %INTERSECTSEGMENTSEGMENT finds intersection(s) between two segments.
-%   [intEE,intEV,intVV,intPt] = INTERSECTSEGMENTSEGMENT(p1, p2) calculates a
-%   parametric line segment equation from p1(:,1) to p1(:,2) and p2(:,1) 
-%   to p2(:,2); calculates the intersection conditions; and calculates the 
-%   point(s) of intersection.
+%   [intEE,intEV,intVV,intPt] = INTERSECTSEGMENTSEGMENT(p1,p2) fits a
+%   parametric line segment from p1(:,1) to p1(:,2) and p2(:,1) to p2(:,2);
+%   calculates the intersection conditions; and calculates the point(s) of 
+%   intersection.
 %
 %   Inputs:
 %       p1 = [x1_1, x1_2; y1_1, y1_2]
 %       p2 = [x2_1, x2_2; y2_1, y2_2]
 %
 %   Outputs:
-%       intEE - binary that is true if there is an edge/edge intersect
-%       intEV - binary that is true if there is an edge/vertex intersect
-%       intVV - binary that is true if there is an vertex/vertex intersect
-%       intPt = [x; y] - the point of intersection (for debugging and stuff)
+%       intEE - scalar binary that is true if there is at least one 
+%               edge/edge intersect
+%       intEV - scalar binary that is true if there is at least one 
+%               edge/vertex intersect
+%       intVV - scalar binary that is true if there is at least one 
+%               vertex/vertex intersect
+%       intPt - [x; y] coordinate(s) of the point or points of 
+%               intersection.
+%           intPt = [];            % No intersection exists
+%           intPt = [x; y];        % One intersection exists *or* extending
+%                                  % the segments into lines yields one 
+%                                  % intersection (this is for debugging)
+%           intPt = [x1,x2;y1,y2]; % Two intersections exist (the segments 
+%                                  % are parallel, colinear, and 
+%                                  % overlapping)
+%
+%   Example(s):
+%       (1) Check if two segments intersect:
+%       [intEE,intEV,intVV] = intersectSegmentSegment(p1,p2);
+%       if any( [intEE,intEV,intVV] )
+%           fprintf('Segments intersect.\n');
+%       else
+%           fprintf('Segments do not intersect.\n');
+%       end
+%
+%   See also fitSegment
 %
 %   M. Kutzer, 18Mar2018, USNA
 
-%% Initialize defaults
-intEE = false;
-intEV = false;
-intVV = false;
-intPt = [];
+% Updates:
+%   23Jul2020 - Full overhaul to address:
+%               (1) singularity issues and 
+%               (2) special case conditions associated with parallel lines 
 
-%% Fit our coefficients
-M1 = p1*[0, 1; 1, 1]^(-1);
-M2 = p2*[0, 1; 1, 1]^(-1);
-
-%% Define "slope" matrix
-MM = [M1(:,1), -M2(:,1)];
-
-%% Define "offset" matrix
-BB = (M2(:,2) - M1(:,2));
-
-%% Check for parallel line condition
+%% Define "zero"
 ZERO = 1e-6;    % TODO - use zeroFPError.m
-isParallel = false;
-if abs( det(MM) ) < ZERO
-    % TODO - check if a row or column of M* is 0
-    %   -> This corresponds to a vertical or horizontal segment that goes
-    %   through the origin.
-    
+
+%% Initialize defaults
+intEE = false;  % No edge/edge intersections
+intEV = false;  % No edge/vertex intersections
+intVV = false;  % No vertex/vertex intresections
+intPt = [];     % No points of intersection
+
+%% Find the coefficients for the segments
+M1 = fitSegment(p1(:,1),p1(:,2));
+M2 = fitSegment(p2(:,1),p2(:,2));
+
+%% Isolate slope/offset terms
+A1 = M1(:,1); % Slope of segment 1
+B1 = M1(:,2); % Offset of segment 1
+A2 = M2(:,1); % Slope of segment 2
+B2 = M2(:,2); % Offset of segment 2
+
+%% Define "slope" and "offset" matrices for finding the intersection
+%   A1*s1 + B1 = A2*s2 + B2
+%   A1*s1 - A2*s2 = B2 - B1
+%   [A1,-A2]*[s1; s2] = (B2 - B1)
+%   AA*[s1; s2] = BB
+AA = [A1, -A2]; % "slope" matrix
+BB = (B2 - B1); % "offset matrix
+
+%% Special Case: Segments are Parallel
+% Check if lines are parallel
+if abs( det(AA) ) < ZERO
     % Lines are parallel!
-    isParallel = true;
+    warning('Segments are parallel or near parallel. det(AA) = %.10f',det(AA));
     
-    % Check for overlapping lines
-    for s = [0,1]
-        xy1 = M1*[s; 1];  % Calculate end-point
-        xy2 = M2*[s; 1];  % Calculate end-point
+    % Check if segments overlap
+    M3 = fitSegment(B1,B2); % Fit a segment to the "offsets" of each segment
+    A3 = M3(:,1);           % Slope of "offsets" segment
+    % Segments are colinear if (but we only need to check one):
+    %   dot(A1,A3) = +/- norm(A1)*norm(A3)
+    %   dot(A2,A3) = +/- norm(A2)*norm(A3)
+    if abs( abs(dot(A1,A3)) - abs(norm(A1)*norm(A3)) ) < ZERO
+        % Segments are colinear!
         
-        S1 = M1^(-1) * xy2;
-        S2 = M2^(-1) * xy1;
+        % One of the following will apply:
+        %   (1) Segments do not overlap
+        %   (2) Segments overlap at exactly one point
+        %   (3) Segments overlap over a range of points
         
-        if S1(1) > 0 && S1(1) < 1
-            % Intersect
-            intEE = true;
-            intEV = true;
-            intPt(:,end+1) = M1*S1;
+        % Define points of intersection
+        nZ = (A1 ~= 0); % Consider non-zero values of A1 (avoid divide by 0)
+        S1 = (p2(nZ,:) - repmat(B1(nZ,:),1,2))./A1(nZ,:); % End-points of segment 2 lie on segment 1
+        nZ = (A2 ~= 0); % Consider non-zero values of A2 (avoid divide by 0)
+        S2 = (p1(nZ,:) - repmat(B2(nZ,:),1,2))./A2(nZ,:); % End-points of segment 1 lie on segment 2
+        % Each element of a column *should* be identical
+        S1 = mean(S1,1);
+        S2 = mean(S2,1);
+        
+        p2On1 = ( (S1+ZERO) >= 0 & (S1-ZERO) <= 1); % Segment 2 end-points that lie on Segment 1
+        p1On2 = ( (S2+ZERO) >= 0 & (S2-ZERO) <= 1); % Segment 1 end-points that lie on Segment 2
+        
+        % (1) Segments do not overlap
+        if all(~p2On1) && all(~p1On2)
+            % (1) Segments do not overlap
+            intEE = false;  % No edge/edge intersects
+            intEV = false;  % No edge/vertex intersects
+            intVV = false;  % No vertex/vertex intersects
+            intPt = [];     % Return no points
+            return
         end
-        if S2(1) > 0 && S2(1) < 1
-            % Intersect
-            intEE = true;
-            intEV = true;
-            intPt(:,end+1) = M2*S2;
+        
+        % (2) Segments overlap at exactly one point
+        % (3) Segments overlap over a range of points
+        intPt = [p1(:,p1On2),p2(:,p2On1)]; % There should be between 2 and 4 points returned
+        switch size(intPt,2)
+            case 4
+                % Segments share both vertices
+                % (3) Segments overlap over a range of points
+                %     -> Entire segment is shared
+                intEE = true;  % Infinite edge/edge intersects
+                intEV = false; % No edge/vertex intersects
+                intVV = true;  % Two vertex/vertex intersect
+                intPt = p1;    % Return two points
+                return
+            case 3
+                % Segments share one vertex and one vertex lies on an edge
+                % (3) Segments overlap over a range of points
+                intEE = true;   % Infinite edge/edge intersects
+                intEV = true;   % One edge/vertex intersect
+                intVV = true;   % One vertex/vertex intersect
+                if nnz(p1On2) == 2
+                    intPt = p1; % Return two points
+                else
+                    intPt = p2; % Return two points
+                end
+                return
+            case 2
+                % Two vertices lie on an edge OR
+                % Segments share one single vertex
+                if norm(diff(intPt,1,2)) < ZERO
+                    % (2) Segments overlap at exactly one point
+                    intEE = false;      % No edge/edge intersects
+                    intEV = false;      % No edge/vertex intersects
+                    intVV = true;       % One vertex/vertex intersect
+                    intPt = intPt(:,1); % Return one point
+                    return
+                else
+                    % (3) Segments overlap over a range of points
+                    intEE = true;  % Infinite edge/edge intersects
+                    intEV = true;  % Two edge/vertex intersects
+                    intVV = false; % No vertex/vertex intersects
+                    intPt = intPt; % Return two points
+                    return
+                end
+            otherwise
+                % Dump variables
+                p1, M2, S2, p1On2, ...
+                p2, M1, S1, p2On1, ... 
+                intPt
+                % Throw error
+                error('Unexpected number of intersect points found.');
         end
-        % check for vertex/vertex (double check me)
-        if (S1(1) == 1 || S1(1) == 0) && (S2(1) == 1 || S2(1) == 0)
-            intVV = true;
-            intPt(:,end+1) = M1*S1;
-        end
+    else
+        % Segments are parallel but not colinear
+        %   -> No intersection exists
+        intEE = false;  % No edge/edge intersections
+        intEV = false;  % No edge/vertex intersections
+        intVV = false;  % No vertex/vertex intresections
+        intPt = [];     % No points of intersection
+        return
     end
-    
-    % TODO - only return the unique set for intPt
+end
+
+%% Special Case: Non-parallel vertex/vertex intersection
+% Enumerate all combinations of p1 and p2
+enum_p1 = [p1(:,1),p1(:,2),p1(:,1),p1(:,2)];
+enum_p2 = [p2(:,1),p2(:,1),p2(:,2),p2(:,2)];
+% Fund the sum square difference of all combinations
+enum_ssd = sum((enum_p1 - enum_p2).^2, 1); 
+if any( enum_ssd < ZERO )
+    intEE = false; % No edge/edge intersections
+    intEV = false; % No edge/vertex intersections
+    intVV = true;  % one vertex/vertex intresections
+    intPt = enum_p1(:,enum_ssd < ZERO); % One point of intersection
     return
 end
-        
-%% Calculate s-values
-s1s2 = MM^(-1) * BB;
-s1 = s1s2(1);
-s2 = s1s2(2);
 
-%% Check conditions
-if s1 > 0 && s1 < 1 && s2 >0 && s2 < 1
-    % Edge/Edge
-    intEE = true;
+%% Calculate s-values of intersection
+% Find parametric intersection
+s1s2 = AA^(-1) * BB;
+
+%% Check parameter bounds 
+IsOn = ( (s1s2+ZERO) >= 0 & (s1s2-ZERO) <= 1); % Intersections are on the segment
+NotOn = ~IsOn;                                 % Intersections are *not* on the segment
+
+%% Check if intersection occurs off of at least one segment (i.e. no actual intersection)
+if any(NotOn)
+    fprintf('Intersect off-segment\n')
+    % Intersection is not on at least one of the segments
+    intEE = false; % No edge/edge intersections
+    intEV = false; % No edge/vertex intersections
+    intVV = false; % No vertex/vertex intresections
+    intPt = M1*[s1s2(1);1]; % No point of intersection (return the line intersection for debugging)
+    return
 end
 
-if (s1 == 0 || s1 == 1) && (s2 == 0 || s2 == 1)
-    % Vertex/Vertex
-    intVV = true;
+%% Check for edge/vertex intersection
+OnEdge = ( abs(s1s2) < ZERO | abs(s1s2-1) < ZERO );
+if any(OnEdge)
+    if nnz(OnEdge) == 2
+        % Dump variables
+        p1, M2,...
+        p2, M1,...
+        s1s2
+        % Throw warning
+        warning('Vertex/vertex intersect found after special case!');
+        intEE = false; % No edge/edge intersections
+        intEV = false; % No edge/vertex intersections
+        intVV = true;  % One vertex/vertex intresections
+        intPt = M1*[s1s2(1);1]; % One point of intersection
+        return
+    else
+        % Edge/vertex intersection
+        intEE = false; % No edge/edge intersections
+        intEV = true;  % One edge/vertex intersections
+        intVV = false; % No vertex/vertex intresections
+        intPt = M1*[s1s2(1);1]; % One point of intersection
+        return
+    end
 end
 
-if (s1 == 0 || s1 == 1) && (s2 >0 && s2 < 1)
-    % Vertex/Edge
-    intEV = true;
-end
+%% Edge/edge intersection
+% If we have made it this far into the code, the intersection must be
+% edge/edge
 
-if (s1 > 0 && s1 < 1) && (s2 == 0 || s2 == 1)
-    % Edge/Vertex
-    intEV = true;
-end
-
-%% Calculate the point of intersect
-intPt = M1*[s1; 1];
-%intPt = M2*[s2; 1];
+% Edge/edge intersection
+intEE = true;       % One edge/edge intersection
+intEV = false;      % No edge/vertex intersections
+intVV = false;      % No vertex/vertex intresections
+intPt = M1*[s1s2(1);1]; % One point of intersection
