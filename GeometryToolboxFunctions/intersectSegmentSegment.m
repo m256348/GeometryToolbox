@@ -8,7 +8,7 @@ function [intEE,intEV,intVV,intPt] = intersectSegmentSegment(p1,p2)
 %   Inputs:
 %       p1 - nx2 array containing n-dimensional segment end-points as 
 %            column vectors
-%       p2 - nx2 array containing n-dimensional x/y segment end-points as 
+%       p2 - nx2 array containing n-dimensional segment end-points as 
 %            column vectors
 %
 %       In 2D:
