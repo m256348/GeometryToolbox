@@ -1,5 +1,5 @@
 function [h,h_e] = plotArcs(varargin)
-% PLOTARCS plots multiple arcs with poinst equally spaced using constant 
+% PLOTARCS plots multiple arcs with points equally spaced using constant 
 % arc length.
 %   h = PLOTARCS(afits) plots one or more arcs with a default change in 
 %   arc length of 0.1.
@@ -10,7 +10,7 @@ function [h,h_e] = plotArcs(varargin)
 %   h = PLOTARCS(axs,___) allows the user to specify the parent of the 
 %   plot object(s).
 %
-%   NOTE: This function assumes the arcs specified are continues in the
+%   NOTE: This function assumes the arcs specified are continuous in the
 %         order given.
 %
 %   Inputs:
@@ -28,6 +28,8 @@ function [h,h_e] = plotArcs(varargin)
 %
 %   Outputs:
 %       h - N-element array of line objects.
+%
+%   See also uniqueArcs, arcAdjacency, arcAdjacencyCycles, arcs2xyz
 %
 %   M. Kutzer, 26Jun2020, USNA
 
@@ -78,45 +80,7 @@ if isempty(afits)
 end
 
 %% Define world points (assuming piecewise arcs are continuous) 
-X_w = [];
-for k = 1:numel(afits)
-    afit = afits(k);
-    
-    % Define circle frame
-    H_c2w = eye(4);
-    H_c2w(1:3,1:3) = afit.Rotation;
-    H_c2w(1:3,4) = afit.Center;
-    
-    % Define change in theta
-    %   s = \theta r
-    %   ds = d\theta r
-    %   d\theta = ds / r
-    dtheta = ds/afit.Radius;
-    
-    for i = 1:size(afit.AngleLims,1)
-        % Define theta
-        theta = afit.AngleLims(i,1):dtheta:afit.AngleLims(i,2);
-        
-        % Check for problem child
-        if numel(theta) < 1
-            warning('No angles produced to visualize arc!');
-            fprintf(' -> afits(%d).AngleLims(%d,:) = [%.8f, %.8f]\n',k,i,afit.AngleLims(i,:));
-            fprintf(' -> ds = %.8f | dtheta = %.8f\n',ds,dtheta);
-            fprintf(' -> Using angle limits...\n');
-            theta = afit.AngleLims(i,:);
-        end
-        
-        % Define body-fixed points
-        X_c = [];   % Re-initialize X_c
-        X_c(1,:) = afit.Radius.*cos(theta);
-        X_c(2,:) = afit.Radius.*sin(theta);
-        X_c(3,:) = 0;
-        X_c(4,:) = 1;
-        
-        % Append world-referenced points
-        X_w = [X_w, H_c2w*X_c];
-    end
-end
+X_w = arcs2xyz(afits,ds);
 
 %% Plot arc
 % [0.224,1.000,0.078] - Neon Green
