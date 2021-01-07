@@ -13,9 +13,9 @@ function varargout = GeometryToolboxVer
 %   M. Kutzer 28Aug2018, USNA
 
 A.Name = 'Geometry Toolbox';
-A.Version = '1.0.0';
+A.Version = '1.0.1';
 A.Release = '(R2017b)';
-A.Date = '28-Aug-2018';
+A.Date = '07-Jan-2021';
 A.URLVer = 1;
 
 msg{1} = sprintf('MATLAB %s Version: %s %s',A.Name, A.Version, A.Release);
