@@ -12,6 +12,11 @@ function pnt = intersectPlaneSegment(abcd,pnts)
 %
 %   M. Kutzer, 12Jun2020, USNA
 
+% Updates:
+%   27May2021 - Finished function
+
+% TODO - adjust function to eliminate warning, potentially add two outputs
+
 %% Check inputs
 narginchk(2,2);
 
