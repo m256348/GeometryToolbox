@@ -36,4 +36,8 @@ d = abcd(4);
 s = (-d - abc*m2)/(abc*m1);
 
 if s >= 0 && s <= 1
-    pnt = M*
+    pnt = M*s;
+else
+    warning('Intersection is outside the segment.');
+    pnt = M*s;
+end
