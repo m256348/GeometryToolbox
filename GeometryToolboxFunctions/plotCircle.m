@@ -20,7 +20,12 @@ function h = plotCircle(varargin)
 %   Outputs:
 %       h - patch object handle for the plotted circle
 %
+%   See also fitCircle interpCircle
+%
 %   M. Kutzer, 20Jun2020, USNA
+
+% Updates
+%   16Sep2021 - Added See also and isolated interpCirle function
 
 %% Check inputs
 narginchk(1,3);
@@ -65,32 +70,8 @@ end
 %% Check parameters
 % TODO - check parameters
 
-%% Define circle frame
-% z-direction
-z_hat = reshape(cfit.Normal./norm(cfit.Normal),[],1);
-% "other" direction
-n_hat = z_hat([2,3,1]);
-% x-direction
-x_hat = cross(n_hat,z_hat);
-x_hat = x_hat./norm(x_hat);
-% y-direction
-y_hat = cross(z_hat,x_hat);
-
-H_c2w = eye(4);
-H_c2w(1:3,1:3) = [x_hat,y_hat,z_hat];
-H_c2w(1:3,4) = reshape(cfit.Center,[],1);
-
-%% Define body-fixed points
-theta = linspace(0,2*pi,N+1);
-theta(end) = [];
-
-X_c(1,:) = cfit.Radius.*cos(theta);
-X_c(2,:) = cfit.Radius.*sin(theta);
-X_c(3,:) = 0;
-X_c(4,:) = 1;
-
-%% Define world-referenced points
-X_w = H_c2w*X_c;
+%% Interpolate points on circle
+X_w = interpCircle(cfit,N);
 
 %% Patch result
 %h = plot3(X_w(1,:),X_w(2,:),X_w(3,:),'Parent',axs,'LineWidth',2);

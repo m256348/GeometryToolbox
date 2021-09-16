@@ -14,11 +14,12 @@ function varargout = GeometryToolboxVer
 
 % Updates
 %   21Apr2021 - Migrated patchSphere from Geometry Toolbox to Patch Toolbox
+%   16Sep2021 - Created interpCircle
 
 A.Name = 'Geometry Toolbox';
-A.Version = '1.0.2';
+A.Version = '1.0.3';
 A.Release = '(R2017b)';
-A.Date = '21-Apr-2021';
+A.Date = '26-Sep-2021';
 A.URLVer = 1;
 
 msg{1} = sprintf('MATLAB %s Version: %s %s',A.Name, A.Version, A.Release);
