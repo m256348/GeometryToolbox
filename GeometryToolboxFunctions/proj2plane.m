@@ -1,13 +1,16 @@
 function varargout = proj2plane(pln,X)
 % PROJ2PLANE projects a set of points to a specified plane
-%   Xproj = PROJ2PLANE(pln,X) projects the N points contained in the 3xN
-%   array X to the plane specified as either a 1x4 array or a planeModel
-%   object. 
+%   Xproj = PROJ2PLANE(pln,X) projects the M points contained in the NxM
+%   array X to the plane specified as either a 1x(N+1) array or a 
+%   planeModel object. 
 %
-%       X   - 3xN array containing points
-%       pln - 1x4 array containing coefficients for plane equation 
-%           [a,b,c,d] such that a*x + b*y + c*z + d = 0 *or* a valid
-%           planeModel object
+%       X   - NxM array containing points where M >= N
+%       pln - 1x(N+1) array containing coefficients for plane equation 
+%             *or* a valid planeModel object
+%          General: [c_1,c_2,c_3,... c_{N+1}] such that
+%                      c_1*x + c_2*y + c_3*z ... + c_{N+1) = 0
+%        Line (2D): [a,b,c] such that a*x + b*y + c = 0
+%       Plane (3D): [a,b,c,d] such that a*x + b*y + c*z + d = 0 
 %
 %   [..., meanError] = PROJ2PLANE(...) additionally returns the mean 
 %   error of the Euclidean distance between the provided points and 

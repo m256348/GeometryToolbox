@@ -5,7 +5,7 @@ function varargout = fitPlane(pnts)
 %   Coefficients are calculated in the Hessian normal form using singular 
 %   value decomposition to determine the unit normal.
 %
-%       pnts - NxM array containing points
+%       pnts - NxM array containing points where M >= N
 %       pln - 1x(N+1) array containing coefficients for plane equation
 %             General: [c_1,c_2,c_3,... c_{N+1}] such that
 %                      c_1*x + c_2*y + c_3*z ... + c_{N+1) = 0
