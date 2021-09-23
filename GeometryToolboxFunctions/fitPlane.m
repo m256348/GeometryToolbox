@@ -1,14 +1,16 @@
 function varargout = fitPlane(pnts)
-% FITPLANE fits the equation of a plane (a*x + b*y + c*z + d = 0) to a 
-% set of points.
-%   pln = FITPLANE(pnts) fit the equation of a plane 
-%   (a*x + b*y + c*z + d = 0) to a provided set of points. Coefficients are 
-%   calculated in the Hessian normal form using singular value 
-%   decomposition to determine the unit normal.
+% FITPLANE fits the equation of an N-dimensional plane to a set of points.
+%   pln = FITPLANE(pnts) fit the equation of an N-dimensional plane 
+%   (c_1*x + c_2*y + c_3*z ... + c_{N+1) = 0) to a provided set of points. 
+%   Coefficients are calculated in the Hessian normal form using singular 
+%   value decomposition to determine the unit normal.
 %
-%       pnts - 3xN array containing points
-%       pln - 1x4 array containing coefficients for plane equation 
-%           [a,b,c,d] such that a*x + b*y + c*z + d = 0
+%       pnts - NxM array containing points
+%       pln - 1x(N+1) array containing coefficients for plane equation
+%             General: [c_1,c_2,c_3,... c_{N+1}] such that
+%                      c_1*x + c_2*y + c_3*z ... + c_{N+1) = 0
+%           Line (2D): [a,b,c] such that a*x + b*y + c = 0
+%          Plane (3D): [a,b,c,d] such that a*x + b*y + c*z + d = 0
 %
 %   [..., meanError] = FITPLANE(...) additionally returns the mean error 
 %   of the distance of provided points and projections.
@@ -23,16 +25,17 @@ function varargout = fitPlane(pnts)
 
 % Updates
 %   20Dec2017 - Updated to include mean error calculation
+%   23Sep2021 - Updated to include general N-dimensional planes
 
 %% check inputs
 narginchk(1,1);
 
-[m,n] = size(pnts);
-if m ~= 3
-    error('Points must be specified in 3D');
+[n,m] = size(pnts);
+if n < 2
+    error('Points must be specified in N-dimensions where N > 1.');
 end
-if n < 3
-    error('At least 3 points must be specified to define a plane');
+if m < n
+    error('At least %d points must be specified to define a %d-dimensional plane.',n,n);
 end
 
 %% eliminate/ignore non-finite values
@@ -52,9 +55,9 @@ idx = find(s == min(s),1);
 n = u(:,idx);   % unit normal
 p = -n'*cg;     % intercept
 
-pln = zeros(1,4);
-pln(1:3) = n;
-pln(4) = p;
+pln = zeros(1,numel(n)+1);
+pln(1:numel(n)) = n;
+pln(numel(n)+1) = p;
 
 %% package outputs
 if nargout > 0
