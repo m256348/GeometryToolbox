@@ -16,6 +16,9 @@ function varargout = fitCircle(X)
 %
 %   M. Kutzer, 20Dec2017, USNA
 
+% Updates
+%   23Sep2021 - Calculate mean error with proj2circle
+
 %% Check Inputs
 narginchk(1,1);
 
@@ -71,7 +74,9 @@ if nargout > 0
     varargout{1} = cfit;
 end
 
-if nargout > 1   
+if nargout > 1
+    [~,meanError] = proj2circle(cfit,X);
+    %{
     % Calculate error in plane
     v = Xproj - C;
     ri = sqrt( sum( v.^2,1) );
@@ -80,5 +85,6 @@ if nargout > 1
     % Compine errors
     err = sqrt( D.^2 + di.^2 );
     meanError = mean(err);
+    %}
     varargout{2} = meanError;
 end
