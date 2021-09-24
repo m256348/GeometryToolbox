@@ -44,12 +44,17 @@ plt_A = plotArc(axs,afit,500);
 plt_X_s = plot3(axs,X_sort(1,:),X_sort(2,:),X_sort(3,:),'oc');
 
 for i = 1:size(X_w,2)
-    txt_w(i) = text(X_w(1,i),X_w(2,i),X_w(3,i),sprintf('%d_w',i),...
-        'Parent',axs,'HorizontalAlignment','Left');
+%     txt_w(i) = text(X_w(1,i),X_w(2,i),X_w(3,i),sprintf('%d_w',i),...
+%         'Parent',axs,'HorizontalAlignment','Left');
     txt_s(i) = text(X_sort(1,i),X_sort(2,i),X_sort(3,i),sprintf('%d_s',i),...
         'Parent',axs,'HorizontalAlignment','Right');
 end
 
-%% Test interpArc
-X = interpArc(afit,50);
+% Test interpArc
+X = interpArc(afit,10);
 plt_i = plot3(axs,X(1,:),X(2,:),X(3,:),'.m','MarkerSize',12);
+
+for i = 1:size(X,2)
+    txt_i(i) = text(X(1,i),X(2,i),X(3,i),sprintf('%d_i',i),...
+        'Parent',axs,'HorizontalAlignment','left');
+end

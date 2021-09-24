@@ -66,20 +66,17 @@ thetas_p2p = atan2(X_c(2,:),X_c(1,:)); % [-pi,pi]
 thetas_z2p = wrapTo2Pi(thetas_p2p);    % [0,2*pi]
 
 % Sort candidate arc bounds
-[thetas_p2p,idx_p2p] = sort(thetas_p2p);
+%[thetas_p2p,idx_p2p] = sort(thetas_p2p);
 [thetas_z2p,idx_z2p] = sort(thetas_z2p);
 
-% TODO - Check if this is a reasonable way to accomplish ordering 
-if max(abs(diff(thetas_p2p))) < max(abs(diff(thetas_z2p)))
-    thetas = thetas_p2p;
-    idx = idx_p2p;
-else
-    thetas = thetas_z2p;
-    idx = idx_z2p;
-end
+% Wrap difference values
+%fprintf('%.14f\n',abs(diff(thetas_z2p(end-1:end))))
+bin = abs( [0,diff(thetas_z2p)] - pi ) < 1e-6;
+thetas_z2p(bin) = thetas_z2p(bin) - 2*pi;
 
-% rad2deg( thetas_p2p(end) - thetas_p2p(1) )
-% rad2deg( thetas_z2p(end) - thetas_z2p(1) )
+% Update sorted values
+[thetas,idx] = sort(thetas_z2p);
+idx = idx_z2p(idx);
 
 %% Package outputs
 afit.Center = reshape(cfit.Center,[],1);
