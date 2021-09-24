@@ -49,3 +49,7 @@ for i = 1:size(X_w,2)
     txt_s(i) = text(X_sort(1,i),X_sort(2,i),X_sort(3,i),sprintf('%d_s',i),...
         'Parent',axs,'HorizontalAlignment','Right');
 end
+
+%% Test interpArc
+X = interpArc(afit,50);
+plt_i = plot3(axs,X(1,:),X(2,:),X(3,:),'.m','MarkerSize',12);

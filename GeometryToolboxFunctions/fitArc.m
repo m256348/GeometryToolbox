@@ -1,6 +1,7 @@
 function [afit,X_sort] = fitArc(X)
 % FITARC fits a circular arc to a three-dimensional set of data.
-%   afit = FITCIRCLE(X) fits an arc to set of N three-dimensional points.
+%   afit = FITCIRCLE(X) fits a *single* arc to set of N three-dimensional 
+%   points.
 %
 %   [afit,X_sort] = FITCIRCLE(X)
 %
@@ -23,6 +24,8 @@ function [afit,X_sort] = fitArc(X)
 %   See also plotArc plotArcs arcs2xyy
 %
 %   M. Kutzer, 23Sep2021, USNA
+
+% TODO - add mean reprojection error to output
 
 %% Check Inputs
 narginchk(1,1);
