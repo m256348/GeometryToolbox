@@ -21,8 +21,11 @@ function varargout = plotEllipsoid(varargin)
 %
 %   M. Kutzer, 03Jan2018, USNA
 
+% Updates
+%   19Jan2022 - Corrected narginchk error
+
 %% Check inputs
-narginchk(1,2);
+narginchk(1,3);
 
 % Parse inputs
 N = 50;
