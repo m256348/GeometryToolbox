@@ -1,7 +1,7 @@
 function [afit,X_sort] = fitArc(X)
 % FITARC fits a circular arc to a three-dimensional set of data.
-%   afit = FITCIRCLE(X) fits a *single* arc to set of N three-dimensional 
-%   points.
+%   afit = FITCIRCLE(X) fits the shortest possible arc to a set of 
+%   three-dimensional points.
 %
 %   [afit,X_sort] = FITCIRCLE(X)
 %
@@ -25,6 +25,9 @@ function [afit,X_sort] = fitArc(X)
 %
 %   M. Kutzer, 23Sep2021, USNA
 
+% Updates
+%   09Feb2022 - Updated to better find the shortest arc
+
 % TODO - add mean reprojection error to output
 
 %% Check Inputs
@@ -34,6 +37,9 @@ narginchk(1,1);
 [m,n] = size(X);
 if m ~= 3
     error('Specified points must be provided as a 3xN array.');
+end
+if n < 3
+    error('At least 3 points must be specified.')
 end
 
 %% Fit circle
@@ -65,18 +71,29 @@ X_c = invSE(H_c2w)*X_w;
 thetas_p2p = atan2(X_c(2,:),X_c(1,:)); % [-pi,pi]
 thetas_z2p = wrapTo2Pi(thetas_p2p);    % [0,2*pi]
 
-% Sort candidate arc bounds
-%[thetas_p2p,idx_p2p] = sort(thetas_p2p);
-[thetas_z2p,idx_z2p] = sort(thetas_z2p);
+%% Sort candidate arc bounds
+% [thetas_p2p,idx_p2p] = sort(thetas_p2p);
+% [thetas_z2p,idx_z2p] = sort(thetas_z2p);
+[sThetas_p2p,idx_p2p] = sort(thetas_p2p);
+[sThetas_z2p,idx_z2p] = sort(thetas_z2p);
 
-% Wrap difference values
-%fprintf('%.14f\n',abs(diff(thetas_z2p(end-1:end))))
-bin = abs( [0,diff(thetas_z2p)] - pi ) < 1e-6;
-thetas_z2p(bin) = thetas_z2p(bin) - 2*pi;
+% % Wrap difference values
+% %fprintf('%.14f\n',abs(diff(thetas_z2p(end-1:end))))
+% bin = abs( [0,diff(thetas_z2p)] - pi ) < 1e-6;
+% thetas_z2p(bin) = thetas_z2p(bin) - 2*pi;
+% 
+% % Update sorted values
+% [thetas,idx] = sort(thetas_z2p);
+% idx = idx_z2p(idx);
 
-% Update sorted values
-[thetas,idx] = sort(thetas_z2p);
-idx = idx_z2p(idx);
+%% Keep shortest arc length arc 
+if ( sThetas_p2p(end) - sThetas_p2p(1) ) < ( sThetas_z2p(end) - sThetas_z2p(1) )
+    thetas = sThetas_p2p;
+    idx = idx_p2p;
+else
+    thetas = sThetas_z2p;
+    idx = idx_z2p;
+end
 
 %% Package outputs
 afit.Center = reshape(cfit.Center,[],1);
