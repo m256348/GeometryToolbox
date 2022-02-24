@@ -76,7 +76,7 @@ pln(numel(n)+1) = p;
 % Note: This assumes an ordered set of points defining the outward pointing
 %       normal of the face. 
 if nD == mPnts
-    if exist('nCross','builtin')
+    if exist('nCross','file') == 2
         idx = [1:nD,1];
         for i = 1:nD
             v{i} = pnts(:,idx(i+1)) - pnts(:,idx(i));
