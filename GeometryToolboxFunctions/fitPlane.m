@@ -5,15 +5,25 @@ function varargout = fitPlane(pnts)
 %   Coefficients are calculated in the Hessian normal form using singular 
 %   value decomposition to determine the unit normal.
 %
+%   [..., meanError] = FITPLANE(...) additionally returns the mean error 
+%   of the distance of provided points and projections.
+%
+%   Input(s)
 %       pnts - NxM array containing points where M >= N
+%
+%   Output(s)
 %       pln - 1x(N+1) array containing coefficients for plane equation
 %             General: [c_1,c_2,c_3,... c_{N+1}] such that
 %                      c_1*x + c_2*y + c_3*z ... + c_{N+1) = 0
 %           Line (2D): [a,b,c] such that a*x + b*y + c = 0
 %          Plane (3D): [a,b,c,d] such that a*x + b*y + c*z + d = 0
+%       meanError - mean error of the distance of provided points and their
+%                   projections onto the plane
 %
-%   [..., meanError] = FITPLANE(...) additionally returns the mean error 
-%   of the distance of provided points and projections.
+%       NOTE: If the minimum number of points is provided, the plane will
+%             be "oriented" based on the order of points provided using the 
+%             n-dimensional cross product (nCross) if the
+%             TransformationToolbox is installed.
 %
 %   References
 %       [1] http://mathworld.wolfram.com/Plane.html
@@ -26,40 +36,60 @@ function varargout = fitPlane(pnts)
 % Updates
 %   20Dec2017 - Updated to include mean error calculation
 %   23Sep2021 - Updated to include general N-dimensional planes
+%   24Feb2022 - Added plane orientation using nCross
 
-%% check inputs
+%% Check inputs
 narginchk(1,1);
 
-[n,m] = size(pnts);
-if n < 2
+[nD,mPnts] = size(pnts);
+if nD < 2
     error('Points must be specified in N-dimensions where N > 1.');
 end
-if m < n
-    error('At least %d points must be specified to define a %d-dimensional plane.',n,n);
-end
 
-%% eliminate/ignore non-finite values
+%% Eliminate/ignore non-finite values
 [~,j] = find(~isfinite(pnts));
 pnts(:,j) = [];
 
-%% define plane
+%% Check supplied points
+if mPnts < nD
+    error('At least %d finite points must be specified to define a %d-dimensional plane.',nD,nD);
+end
+
+%% Define plane
 N = size(pnts,2);
 cg = (1/N)*sum(pnts,2);
 
-%TODO - eliminate use of svd twice by actually looking at the values in the
-%second output of the first call
-[u,~,~] = svd( bsxfun(@minus,pnts,cg) );
-s = svd( bsxfun(@minus,pnts,cg) );
+[U,S,~] = svd( bsxfun(@minus,pnts,cg) );
+
+% Find minimum singular value
+s = diag(S);
 idx = find(s == min(s),1);
 
-n = u(:,idx);   % unit normal
-p = -n'*cg;     % intercept
+n = U(:,idx);   % unit normal
+p = -n.'*cg;    % intercept
 
 pln = zeros(1,numel(n)+1);
 pln(1:numel(n)) = n;
 pln(numel(n)+1) = p;
 
-%% package outputs
+%% Orient plane if minimum set of points is provided
+% Note: This assumes an ordered set of points defining the outward pointing
+%       normal of the face. 
+if nD == mPnts
+    if exist('nCross','builtin')
+        idx = [1:nD,1];
+        for i = 1:nD
+            v{i} = pnts(:,idx(i+1)) - pnts(:,idx(i));
+        end
+        nV = nCross(v{:});
+        sgn = dot(nV,n);
+        pln = sgn*pln;
+    else
+        warning('Unable to orient plane. Download and install the kutzer\TransformationToolbox for this functionality.')
+    end
+end
+    
+%% Package outputs
 if nargout > 0
     varargout{1} = pln;
 end
