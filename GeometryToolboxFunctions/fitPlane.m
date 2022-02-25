@@ -55,40 +55,45 @@ if mPnts < nD
     error('At least %d finite points must be specified to define a %d-dimensional plane.',nD,nD);
 end
 
-%% Define plane
-N = size(pnts,2);
-cg = (1/N)*sum(pnts,2);
-
-[U,S,~] = svd( bsxfun(@minus,pnts,cg) );
-
-% Find minimum singular value
-s = diag(S);
-idx = find(s == min(s),1);
-
-n = U(:,idx);   % unit normal
-p = -n.'*cg;    % intercept
-
-pln = zeros(1,numel(n)+1);
-pln(1:numel(n)) = n;
-pln(numel(n)+1) = p;
-
-%% Orient plane if minimum set of points is provided
-% Note: This assumes an ordered set of points defining the outward pointing
-%       normal of the face. 
+%% Check for nCross is minimum set of points is provided
+useCross = false;
 if nD == mPnts
     if exist('nCross','file') == 2
-        idx = [1:nD,1];
-        for i = 1:nD
-            v{i} = pnts(:,idx(i+1)) - pnts(:,idx(i));
-        end
-        nV = nCross(v{:});
-        sgn = dot(nV,n);
-        pln = sgn*pln;
+        useCross = true;
     else
         warning('Unable to orient plane. Download and install the kutzer\TransformationToolbox for this functionality.')
     end
 end
-    
+
+%% Define plane
+if ~useCross
+    % Fit nD plane to mPnts > nD OR if nCross is unavailable
+    cg = (1/mPnts)*sum(pnts,2);
+
+    [U,S,~] = svd( bsxfun(@minus,pnts,cg) );
+
+    % Find minimum singular value
+    s = diag(S);
+    idx = find(s == min(s),1);
+
+    n = U(:,idx);   % unit normal
+    p = -n.'*cg;    % intercept
+else
+    % Fit nD plane to mPnts = nD if nCross is available
+    cg = (1/mPnts)*sum(pnts,2);
+
+    for i = 2:nD
+        v{i-1} = pnts(:,i) - pnts(:,i-1);
+    end
+    n = nCross(v{:});
+
+    n = n./norm(n);     % unit normal
+    p = -n.'*pnts(:,1); % intercept
+end
+pln = zeros(1,numel(n)+1);
+pln(1:numel(n)) = n;
+pln(numel(n)+1) = p;
+
 %% Package outputs
 if nargout > 0
     varargout{1} = pln;

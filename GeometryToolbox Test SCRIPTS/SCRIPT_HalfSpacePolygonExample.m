@@ -1,6 +1,6 @@
 %% SCRIPT_HalfSpacePolygonExample
-% This script defines the interior of a polygon using an intersection of
-% negative half spaces.
+% This script defines the interior of a *convex* polygon using the 
+% intersection of negative half spaces.
 %
 %   M. Kutzer, 24Feb2022, USNA
 
@@ -22,7 +22,8 @@ hold(axs,'on');
 daspect(axs,[1 1 1]);
 
 faces = 1:size(verts,2);
-ptc = patch('Vertices',verts.','Faces',faces,'FaceColor','b','FaceAlpha',0.5,'EdgeColor','b','LineWidth',1);
+ptc = patch('Vertices',verts.','Faces',faces,'FaceColor','b',...
+    'FaceAlpha',0.5,'EdgeColor','b','LineWidth',1);
 
 %% Define half space for each segment of the polygon using Hessian Normal form
 idx = [faces,1]; % (Indices including wrap-around condition)
@@ -31,6 +32,9 @@ for i = 1:size(verts,2)
     p1 = verts(:,idx(i));
     p2 = verts(:,idx(i+1));
     
+    % --- Define "oriented" line ------------------------------------------
+    % Define the line using Hessian normal form
+
     % Define vector direction of vertex pair
     v = p2 - p1;
     v_hat = v./norm(v);
@@ -42,19 +46,25 @@ for i = 1:size(verts,2)
     p = -n_hat.'*p1;
 
     % Package line coefficients
-    abc(i,:) = [n_hat.', p]; % Coefficients for our line ax + by + c = 0
-    
-    %{
-    % fitPlane does not currently orient the line!
-    % -> See TransformationToolbox nCross (currently doesn't support 
-    %    single-element cross product for 2D vector) 
-    abc(i,:) = fitPlane([p1,p2]);
-    %}
+    abc_hn(i,:) = [n_hat.', p]; % Coefficients for our line ax + by + c = 0
+    % ---------------------------------------------------------------------
+
+    % --- Define "oriented" line using fitPlane ---------------------------
+    % NOTES:
+    % (1) fitPlane fits an N-dimensional plane (N > 1). A line is a 2D
+    %     plane.
+    % (2) Creating a reliable line orientation requires nCross from the
+    %     TransformationToolbox
+    abc_fp(i,:) = fitPlane([p1,p2]);
+    % ---------------------------------------------------------------------
 
     % Plot vertices and labels
     plot(axs,verts(1,idx(i)),verts(2,idx(i)),'*k');
     text(verts(1,idx(i)),verts(2,idx(i)),sprintf('p_{%d}',i));
 end
+
+% Select one set of constants
+abc = abc_fp;
 
 %% Check half spaces for collisions
 xlim(axs,[-1,2]);
@@ -96,7 +106,5 @@ while true
     end
     toc
     drawnow
-
-    pause;
 end
 
