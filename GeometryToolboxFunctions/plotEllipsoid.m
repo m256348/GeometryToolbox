@@ -23,6 +23,7 @@ function varargout = plotEllipsoid(varargin)
 
 % Updates
 %   19Jan2022 - Corrected narginchk error
+%   08Mar2022 - Check for 3-element principal radii
 
 %% Check inputs
 narginchk(1,3);
@@ -65,6 +66,11 @@ end
 
 %% Plot ellipsoid
 r = efit.PrincipalRadii;
+
+% Check for valid principal radii
+if numel(r) ~= 3
+    error('Principal Radii must be specifed as a 3-element array.');
+end
 
 [x,y,z] = ellipsoid(0,0,0,r(1),r(2),r(3),N);
 [m,n] = size(x);
