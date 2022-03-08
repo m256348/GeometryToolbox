@@ -17,11 +17,13 @@ function varargout = GeometryToolboxVer
 %   16Sep2021 - Created interpCircle
 %   09Feb2022 - Updated firArc to better select shortest arc length
 %               solution
+%   24Feb2022 - Updated fitPlane to orient plane
+%   07Mar2022 - Added plotSphere
 
 A.Name = 'Geometry Toolbox';
-A.Version = '1.0.4';
+A.Version = '1.0.6';
 A.Release = '(R2017b)';
-A.Date = '09-Feb-2022';
+A.Date = '07-Mar-2022';
 A.URLVer = 1;
 
 msg{1} = sprintf('MATLAB %s Version: %s %s',A.Name, A.Version, A.Release);

@@ -20,10 +20,12 @@ function varargout = proj2sphere(sph,X)
 %
 %   M. Kutzer, 21Dec2017, USNA 
 
+% Updates
+%   07Mar2022 - Corrected documentation issue(s)
 %% Check Inputs
 narginchk(2,2);
 
-% Get plane normal
+% Get sphere parameters
 switch lower( class(sph) )
     case 'spheremodel'
         C = transpose( sph.Center );
