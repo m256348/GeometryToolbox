@@ -19,11 +19,12 @@ function varargout = GeometryToolboxVer
 %               solution
 %   24Feb2022 - Updated fitPlane to orient plane
 %   07Mar2022 - Added plotSphere
+%   17Mar2022 - Corrected parent assignment issue in plotShere
 
 A.Name = 'Geometry Toolbox';
-A.Version = '1.0.6';
+A.Version = '1.0.7';
 A.Release = '(R2017b)';
-A.Date = '07-Mar-2022';
+A.Date = '17-Mar-2022';
 A.URLVer = 1;
 
 msg{1} = sprintf('MATLAB %s Version: %s %s',A.Name, A.Version, A.Release);
