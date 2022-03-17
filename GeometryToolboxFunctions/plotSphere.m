@@ -38,6 +38,9 @@ function varargout = plotSphere(varargin)
 %
 %   M. Kutzer, 07Mar2022, USNA
 
+% Updates
+%   17Mar2022 - Corrected parent assignment error for non-axes parents
+
 %% Check inputs
 narginchk(1,3);
 
@@ -112,10 +115,13 @@ if nargout < 2
     y = reshape(X_a(2,:),m,n);
     z = reshape(X_a(3,:),m,n);
     
-    srf = surf(axs,x,y,z,'Visible','off');
+    %srf = surf(axs,x,y,z,'Visible','off');
+    srf = surf(x,y,z,'Visible','off','Parent',axs);
     ptc = surf2patch(srf);
     delete(srf);
-    p_a = patch(axs,ptc,'EdgeColor','None','FaceColor','b','FaceAlpha',0.5);
+    %p_a = patch(axs,ptc,'EdgeColor','None','FaceColor','b','FaceAlpha',0.5);
+    p_a = patch(ptc,'EdgeColor','None','FaceColor','b','FaceAlpha',0.5,...
+        'Parent',axs);
     if nargout == 1
         varargout{1} = p_a;
     end
@@ -123,12 +129,13 @@ else
     x = reshape(X_s(1,:),m,n);
     y = reshape(X_s(2,:),m,n);
     z = reshape(X_s(3,:),m,n);
-    srf = surf(axs,x,y,z,'Visible','off');
+    %srf = surf(axs,x,y,z,'Visible','off');
+    srf = surf(x,y,z,'Visible','off','Parent',axs);
     ptc = surf2patch(srf);
     delete(srf);
-    p_s = patch(axs,ptc,'EdgeColor','None','FaceColor','b','FaceAlpha',0.5);
     h_s2a = triad('Parent',axs,'Scale',r,'LineWidth',1.5,'Matrix',H_s2a);
-    set(p_s,'Parent',h_s2a);
+    p_s = patch(ptc,'EdgeColor','None','FaceColor','b','FaceAlpha',0.5,...
+        'Parent',h_s2a);
     varargout{1} = p_s;
     varargout{2} = h_s2a;
 end
