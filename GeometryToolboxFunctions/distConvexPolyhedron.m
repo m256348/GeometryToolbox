@@ -1,7 +1,8 @@
-function [d,msg] = distConvexPolyhedron(A,B)
+function [d,msg] = distConvexPolyhedron(A,B,ZERO)
 % DISTCONVEXPOLYHEDRON calculates the distance between two convex
 % n-dimensional polyhedron.
 %   [d,msg] = DISTCONVEXPOLYHEDRON(A,B)
+%   [d,msg] = DISTCONVEXPOLYHEDRON(A,B,ZERO)
 %
 %   Input(s)
 %       A - structured array (or object) containing fields "Faces" and "Vertices" or a 
@@ -92,10 +93,19 @@ for i = 1:max([nFaces_A,nFaces_B])
     % Face planes, Polyhedron B
     if i <= nFacesB
         for iB = 1:nD
-            pA(:,iB) = vertsB(facesB(i,iB),:).';
+            pB(:,iB) = vertsB(facesB(i,iB),:).';
         end
         facePlaneB(i,:) = fitPlane(pB);
     end
 end
 
-%% Check half spaces
+%% Check for vertices on the interior
+xA = vertsA.';
+xA(4,:) = 1;
+xB = vertsB.';
+xB(4,:) = 1;
+
+AinB = (facePlaneB*xA) < 0;
+BinA = (facePlaneB*xB) < 0;
+
+A
