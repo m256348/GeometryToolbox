@@ -105,7 +105,7 @@ facePlaneA = nan(nFaces_A,nD+1);
 facePlaneB = nan(nFaces_B,nD+1);
 for i = 1:max([nFaces_A,nFaces_B])
     % Face planes, Polyhedron A
-    if i <= nFacesA
+    if i <= nFaces_A
         for iA = 1:nD
             pA(:,iA) = vertsA(facesA(i,iA),:).';
         end
@@ -113,7 +113,7 @@ for i = 1:max([nFaces_A,nFaces_B])
     end
     
     % Face planes, Polyhedron B
-    if i <= nFacesB
+    if i <= nFaces_B
         for iB = 1:nD
             pB(:,iB) = vertsB(facesB(i,iB),:).';
         end
