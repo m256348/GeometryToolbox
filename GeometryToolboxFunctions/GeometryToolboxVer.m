@@ -20,11 +20,12 @@ function varargout = GeometryToolboxVer
 %   24Feb2022 - Updated fitPlane to orient plane
 %   07Mar2022 - Added plotSphere
 %   17Mar2022 - Corrected parent assignment issue in plotShere
+%   06Jan2023 - Corrected varargin issue with distSegmentSegment
 
 A.Name = 'Geometry Toolbox';
-A.Version = '1.0.7';
+A.Version = '1.0.8';
 A.Release = '(R2017b)';
-A.Date = '17-Mar-2022';
+A.Date = '06-Jan-2023';
 A.URLVer = 1;
 
 msg{1} = sprintf('MATLAB %s Version: %s %s',A.Name, A.Version, A.Release);
