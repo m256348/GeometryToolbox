@@ -22,6 +22,9 @@ function [d_mag,d,d1,d2] = distSegmentSegment(varargin)
 %
 %   M. Kutzer, 06Nov2018, USNA
 
+% Update(s)
+%   06Jan2023 - Revised varargin parsing for nargin == 2
+
 % TODO - This function can be expanded to work with Nth order lines (i.e.
 % remove the N = 2 or N = 3 constraint.
 
@@ -30,28 +33,27 @@ seg = [];
 
 % Parse inputs for two input arguments
 if nargin == 2
-    seg(1) = varargin{1};   % Segment structure for segment 1
-    seg(2) = varargin{2};   % Segment structure for segment 2
-    
     % Check fields
     fieldsCheck = {'Point0','Point1'};
     nFields = numel(fieldsCheck);
-    if sum( isfield(seg(1),fieldsCheck) ) ~= nFields || sum( isfield(seg(2),fieldsCheck) ) ~= nFields
-        error('distSegmentSegment(s1,s2) requires s1 and s2 to be defined segment structures with fields "Point0" and "Point1".');
+    for i = 1:nargin
+        if nnz( isfield(varargin{i},fieldsCheck) ) ~= nFields || numel( fields(varargin{i}) ) ~= nFields
+            error('distSegmentSegment(s1,s2) requires s1 and s2 to be defined segment structures with fields "Point0" and "Point1".');
+        end
     end
     
     % Force end-points to be Nx1
-    seg(1).Point0 = reshape(seg(1).Point0,[],1);
-    seg(1).Point1 = reshape(seg(1).Point1,[],1);
-    seg(2).Point0 = reshape(seg(2).Point0,[],1);
-    seg(2).Point1 = reshape(seg(2).Point1,[],1);
+    seg.Point0 = reshape(varargin{1}.Point0,[],1);
+    seg.Point1 = reshape(varargin{1}.Point1,[],1);
+    seg(2).Point0 = reshape(varargin{2}.Point0,[],1);
+    seg(2).Point1 = reshape(varargin{2}.Point1,[],1);
 end
 
 % Parse inputs for four input arguments
 if nargin == 4
     % TODO - consider adding an Nx1 or 1xN check
-    seg(1).Point0 = reshape(varargin{1},[],1); % Segment 1 start point
-    seg(1).Point1 = reshape(varargin{2},[],1); % Segment 1 end point)
+    seg.Point0 = reshape(varargin{1},[],1); % Segment 1 start point
+    seg.Point1 = reshape(varargin{2},[],1); % Segment 1 end point)
     seg(2).Point0 = reshape(varargin{3},[],1); % Segment 2 start point
     seg(2).Point1 = reshape(varargin{4},[],1); % Segment 2 end point
 end
