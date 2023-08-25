@@ -24,6 +24,8 @@ function [tf,intPt,vPG,vSeg] = intersectSegmentPolygon(v1,v2,PG)
 %
 %   M. Kutzer, 24Jul2020, USNA
 
+debugON = false;
+
 %% Check inputs
 narginchk(3,3);
 
