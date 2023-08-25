@@ -122,6 +122,8 @@ for i = 1:N
             % edge
             
     end
+end
+
 %% Check if either of the points are inside of the polygon
 [in,on] = inpolygon(v1(1),v1(2),PG(1,:),PG(2,:));
 if in && ~on
