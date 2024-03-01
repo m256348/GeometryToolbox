@@ -25,7 +25,7 @@ narginchk(3,3);
 
 % Check distribution size
 N = numel(mu);
-if ~ismatrix(Sigma) || size(Sigma,1) ~= N || size(Sigma,2) ~= 2
+if ~ismatrix(Sigma) || size(Sigma,1) ~= N || size(Sigma,2) ~= N
     error('Given a %d element mean, covariance must be a %dx%d matrix.',N,N,N);
 end
 
@@ -42,7 +42,7 @@ if numel(prc) ~= 1 || prc <= 0 || prc >= 1
 end
 
 %% Define value associated with confidence interval
-val = sqrt( chi2inv(prcConfInterval,N) );
+val = sqrt( chi2inv(prc,N) );
 
 %% Define Eigenvalues and Eigenvectors
 [V,D] = eig(Sigma);
