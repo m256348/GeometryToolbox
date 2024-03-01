@@ -64,6 +64,10 @@ if ~(sum( isfield(efit,flds) ) == numel(flds))
     error(msg);
 end
 
+% Deconflict axs/hgtransform
+h_e2a = axs;
+axs = ancestor(h_e2a);
+
 %% Plot ellipsoid
 r = efit.PrincipalRadii;
 
@@ -101,9 +105,8 @@ else
     delete(srf);
     p = patch(axs,ptc,'EdgeColor','None','FaceColor','b','FaceAlpha',0.5);
     % TODO - Something is wrong with the MATRIX PROPERTY HERE. It may be an
-    % issue with TRIAD.
-    isSE(H)
-    h = triad('Parent',axs,'Scale',min( abs(r) ),'LineWidth',1.5,'Matrix',H);
+    %        issue with TRIAD.
+    h = triad('Parent',h_e2a,'Scale',min( abs(r) ),'LineWidth',1.5,'Matrix',H);
     set(p,'Parent',h);
     varargout{1} = p;
     varargout{2} = h;
