@@ -21,11 +21,12 @@ function varargout = GeometryToolboxVer
 %   07Mar2022 - Added plotSphere
 %   17Mar2022 - Corrected parent assignment issue in plotShere
 %   06Jan2023 - Corrected varargin issue with distSegmentSegment
+%   05Mar2023 - Added fitArc2pntRad
 
 A.Name = 'Geometry Toolbox';
-A.Version = '1.0.9';
+A.Version = '1.1.0';
 A.Release = '(R2022a)';
-A.Date = '01-Mar-2024';
+A.Date = '05-Mar-2024';
 A.URLVer = 1;
 
 msg{1} = sprintf('MATLAB %s Version: %s %s',A.Name, A.Version, A.Release);
