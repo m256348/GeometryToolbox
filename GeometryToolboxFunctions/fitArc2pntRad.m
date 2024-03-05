@@ -51,7 +51,10 @@ v_hat = v./norm(v); % Unit vector
 
 % Check for ill-defined radius
 if abs(r) < norm(v)/2
-    error('Radius must be at least 1/2 the distance between the points.');
+    error([...
+        'Radius must be at least 1/2 the distance between the points.\n',...
+        '\t(1/2) distance between points = %.6f\n',...
+        '\t                abs( radius ) = %.6f\n'],norm(v)/2,abs(r));
 end
 
 % Define normal vector
