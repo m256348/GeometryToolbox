@@ -18,7 +18,7 @@ function efit = mvnpdfConfInterval(mu,Sigma,prc)
 %
 %   See also plotEllipsoid
 %
-%   M. Kutzer, 01Mar2024, USNA
+%   M. Kutzer, L. DeVries, & P. Jaramillo Cienfuegos, 01Mar2024, USNA
 
 %% Check input(s)
 narginchk(3,3);
