@@ -27,7 +27,7 @@ function afit = fitArc2pntRad(X,r)
 %
 %   M. Kutzer, 04Mar2024, USNA
 
-debugOn = true;
+debugOn = false;
 
 %% Check Input(s)
 narginchk(2,2)
