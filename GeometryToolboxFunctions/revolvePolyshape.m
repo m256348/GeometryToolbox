@@ -1,4 +1,4 @@
-function ptcStruct = revolvePolyshape(ps,rAxis,n)
+function ptcStruct = revolvePolyshape(ps,rAxis,n,angle)
 % REVOLVEPOLYSHAPE revolves a polyshape around a designated axis
 %
 % ptcStruct = revolvePolyshape(ps,rAxis,n)
@@ -8,10 +8,12 @@ function ptcStruct = revolvePolyshape(ps,rAxis,n)
 %    rAxis - 2x2 array specifying the axis of revolution
 %           rAxis(1,:) - origin of the axis of revolution
 %           rAxis(2,:) - second point specifying the direction of the axis
-%        n - scalar defining number of points around the returned 
+%        n - scalar defining number of points around the returned
+%    angle - [OPTIONAL] scalar defining angle of revolution in radians.
+%            The default value is 2*pi.
 %
 %   Output(s)
-%       ptcStruct - structured array or arrays defining the vertices and 
+%       ptcStruct - structured array or arrays defining the vertices and
 %                   faces for a patch object
 %
 %   M. Kutzer, 12Mar2024, USNA
@@ -19,7 +21,12 @@ function ptcStruct = revolvePolyshape(ps,rAxis,n)
 debug = false;
 
 %% Check input(s)
+narginchk(3,4);
 % TODO - check inputs
+
+if nargin < 4
+    angle = 2*pi;
+end
 
 %% Remove holes in polyshape(s)
 for i = 1:numel(ps)
@@ -63,15 +70,24 @@ if debug
 end
 
 %% Revolve polyshapes
-phi = linspace(0,2*pi,n+1);
-phi(end) = [];
+ZERO = 1e-8;
+if abs( abs(angle) - 2*pi ) < ZERO
+    tf_FullRevolve = true;
+    phi = linspace(0,2*pi,n+1);
+    phi(end) = [];
+else
+    % TODO - Close faces
+    tf_FullRevolve = false;
+    phi = linspace(0,angle,n);
+end
+
 for i = 1:numel(X_o)
     % Reference polyshape to axis of revolution
     X_p = H_o2p*X_o{i};
 
     % Define number of vertices in single cross-section
     N = size(X_p,2);
-    
+
     if debug
         plt_ps(i) = plot(axs,ps(i),'FaceColor','b','EdgeColor','b',...
             'LineWidth',2);
@@ -93,11 +109,13 @@ for i = 1:numel(X_o)
                 [2:N,1] + (0  )*N;...
                 [1:N  ] + (0  )*N] ];
         else
-            faces = [faces,[...
-                [1:N  ] + (j-1)*N;...
-                [2:N,1] + (j-1)*N;...
-                [2:N,1] + (j  )*N;...
-                [1:N  ] + (j  )*N] ];
+            if tf_FullRevolve
+                faces = [faces,[...
+                    [1:N  ] + (j-1)*N;...
+                    [2:N,1] + (j-1)*N;...
+                    [2:N,1] + (j  )*N;...
+                    [1:N  ] + (j  )*N] ];
+            end
         end
     end
 
