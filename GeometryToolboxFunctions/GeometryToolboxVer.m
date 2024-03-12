@@ -24,9 +24,9 @@ function varargout = GeometryToolboxVer
 %   05Mar2023 - Added fitArc2pntRad
 
 A.Name = 'Geometry Toolbox';
-A.Version = '1.1.0';
+A.Version = '1.1.1';
 A.Release = '(R2022a)';
-A.Date = '05-Mar-2024';
+A.Date = '12-Mar-2024';
 A.URLVer = 1;
 
 msg{1} = sprintf('MATLAB %s Version: %s %s',A.Name, A.Version, A.Release);
