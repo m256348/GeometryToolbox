@@ -124,7 +124,7 @@ if all(tfSpecialCase,'all')
         'Tangent lines intersect at the point given.\n',...
         'The resultant circle has a radius of 0.']);
     warning(msg);
-    cfit.Center = X;
+    cfit.Center = [X; 0];
     cfit.Radius = 0;
     Xint_cfit{1} = X;
     return
