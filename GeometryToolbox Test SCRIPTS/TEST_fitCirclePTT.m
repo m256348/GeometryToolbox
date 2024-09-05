@@ -38,7 +38,7 @@ for i = 1:numel(desc)
         Xint = Xint_cfit{j};
         val = evalCfit(cfit(j),Xint);
         tf = abs(val) > ZERO;
-        disp(tf);
+        %disp(tf);
         [a,b] = find(tf);
         for k = 1:numel(a)
             fprintf('Fit %d, Point %d - ',j,a(k))
@@ -54,10 +54,14 @@ for i = 1:numel(desc)
         Xint(3,:) = 1;
         val = abc*Xint;
         tf = abs(val) > ZERO;
-        disp(tf);
+        %disp(tf);
         [a,b] = find(tf);
         for k = 1:numel(a)
-            fprintf('Line %d, Point %d - Is not on line\n',a(k),b(k))
+            fprintf('Line %d, Point %d - Is not on line ',a(k),b(k));
+            if a(k) ~= b(k)
+                fprintf('[This is expected]');
+            end
+            fprintf('\n');
         end
     end
 end
