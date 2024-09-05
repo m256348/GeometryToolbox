@@ -66,7 +66,7 @@ if rank( [abc1; abc2] ) < 2
 end
 
 % Set defaults
-debug = true;
+debug = false;
 ZERO = 1e-8;
 if nargin > 3
     % Parse values
