@@ -35,4 +35,4 @@ if nD ~= 2
 end
 
 %% Fit line
-varargout = fitPlane(pnts);
+[varargout{1:nargout}] = fitPlane(pnts);

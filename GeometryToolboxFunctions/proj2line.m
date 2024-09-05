@@ -1,6 +1,6 @@
 function varargout = proj2line(abc,X)
 % PROJ2LINE projects a set of points to a specified line
-%   Xproj = PROJ2LINE(pln,X) projects the M points contained in the NxM
+%   Xproj = PROJ2LINE(abc,X) projects the M points contained in the NxM
 %   array X to the line specified as either a 1x(N+1) array or a 
 %   planeModel object. 
 %
@@ -22,7 +22,7 @@ function varargout = proj2line(abc,X)
 %% Check input(s)
 narginchk(2,2);
 
-[nD,mPnts] = size(pnts);
+[nD,mPnts] = size(X);
 if nD ~= 2
     error('Points must be specified in 2-dimensions.');
 end
@@ -32,4 +32,4 @@ if numel(abc) ~= 3
 end
 
 %% Project to line
-varargout = proj2plane(abc,X);
+[varargout{1:nargout}] = proj2plane(abc,X);

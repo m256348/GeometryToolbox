@@ -120,9 +120,13 @@ end
 
 % Point lies on both Line 1 and Line 2
 if all(tfSpecialCase,'all')
-    warning('Tangent lines intersect at the point given. The resultant circle has a radius of 0.');
+    msg = sprintf([...
+        'Tangent lines intersect at the point given.\n',...
+        'The resultant circle has a radius of 0.']);
+    warning(msg);
     cfit.Center = X;
     cfit.Radius = 0;
+    Xint_cfit{1} = X;
     return
 end
 
@@ -308,9 +312,9 @@ for i = 1:numel(phiB)
     % Check for special case (non-real values)
     % TODO - validate this approach
     if any(tfSpecialCase)
-        if abs(diff( real(h_TMP) )) < ZERO
-            h_TMP = sqrt( prod(h_TMP) );
-        end
+        %if abs(diff( real(h_TMP) )) < ZERO
+        h_TMP = sqrt( prod(h_TMP) );
+        %end
     end
     
     % Combine results
