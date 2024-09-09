@@ -31,12 +31,12 @@ ZERO = 1e-8;
 for i = 1:numel(desc)
     fprintf('---------- %s ----------\n',desc{i});
     % Run function
-    [cfit,Xint_cfit] = fitCirclePTT(X(:,i),abc(1,:),abc(2,:),true);
+    [cfit{i},Xint_cfit{i}] = fitCirclePTT(X(:,i),abc(1,:),abc(2,:),true);
     % Test results
-    for j = 1:numel(cfit)
+    for j = 1:numel(cfit{i})
         % Check if intersections lie on circle
-        Xint = Xint_cfit{j};
-        val = evalCfit(cfit(j),Xint);
+        Xint = Xint_cfit{i}{j};
+        val = evalCfit(cfit{i}(j),Xint);
         tf = abs(val) > ZERO;
         %disp(tf);
         [a,b] = find(tf);
