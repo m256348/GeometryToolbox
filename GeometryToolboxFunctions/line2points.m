@@ -19,6 +19,9 @@ function [xy,xyBnds] = line2points(abc,xx,yy)
 %
 %   M. Kutzer, 14May2024, USNA
 
+% Updates
+%   17Sep2024 - For three or more points, choose the farthest two
+
 %% Check input(s)
 narginchk(3,3);
 
@@ -77,7 +80,15 @@ switch nnz(tf)
         % Two points returned (expected result)
         xy = xy(:,tf);
     otherwise
+        %{
         % Multiple points returned (keep first two)
         xy = xy(:,1:2);
+        %}
+        idxPairs = nchoosek(find(tf),2);
+        for i = 1:size(idxPairs)
+            dxy(i) = norm(xy(:,idxPairs(i,1)) - xy(:,idxPairs(i,2)));
+        end
+        idxPair = find(dxy == max(dxy),1,'first');
+        xy = xy(:,idxPairs(idxPair,:));
 end
 
