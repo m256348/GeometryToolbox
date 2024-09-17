@@ -56,6 +56,7 @@ if numel(abc2) ~= 3 || ~isnumeric(abc1)
     error('Line 1 must be defined using three constants.');
 end
 
+%% Reshape input(s)
 X = reshape(X,[],1);
 abc1 = reshape(abc1,1,[]);
 abc2 = reshape(abc2,1,[]);
@@ -167,6 +168,15 @@ yy = Xint(2) + dX*[-1,1];
 if debug
     % Plot intersection
     plt_Xint = plot(axs,Xint(1),Xint(2),'ok');
+    
+    % Plot xx & yy
+    for i = 1:numel(xx)
+        for j = 1:numel(yy)
+            plt_xxyy(i,j) = plot(axs,xx(i),yy(j),'oc');
+            txt_xxyy(i,j) = text(axs,xx(i),yy(j),sprintf('[%d,%d]',i,j),...
+                'HorizontalAlignment','center','VerticalAlignment','Top');
+        end
+    end
 end
 
 %% Calculate angle between lines
