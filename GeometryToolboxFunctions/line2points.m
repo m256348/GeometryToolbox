@@ -85,7 +85,7 @@ switch nnz(tf)
         xy = xy(:,1:2);
         %}
         idxPairs = nchoosek(find(tf),2);
-        for i = 1:size(idxPairs)
+        for i = 1:size(idxPairs,1)
             dxy(i) = norm(xy(:,idxPairs(i,1)) - xy(:,idxPairs(i,2)));
         end
         idxPair = find(dxy == max(dxy),1,'first');
