@@ -180,8 +180,8 @@ if debug
 end
 
 %% Calculate angle between lines
-X1 = line2points(abc1(1,:),xx,yy);
-X2 = line2points(abc2(1,:),xx,yy);
+X1 = line2points(abc1(1,:),xx,yy,ZERO);
+X2 = line2points(abc2(1,:),xx,yy,ZERO);
 
 if debug
     lsymbols = '+x';
