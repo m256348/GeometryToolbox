@@ -77,6 +77,9 @@ tf = ...
     xy(2,:) >= yy(1)*(1-ZERO) & xy(2,:) <= yy(2)*(1+ZERO);
 
 switch nnz(tf)
+    case 0
+        % No point is within the specified limits
+        xy = [];
     case 1
         % Only one point is within the specified limits
         xy = [];
