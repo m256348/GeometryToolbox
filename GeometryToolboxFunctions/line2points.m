@@ -1,4 +1,4 @@
-function [xy,xyBnds] = line2points(abc,xx,yy)
+function [xy,xyBnds] = line2points(abc,xx,yy,ZERO)
 % LINE2POINTS defines two points on a line given x and y bounds.
 %   xy = line2points(abc,xx,yy)
 %
@@ -9,6 +9,8 @@ function [xy,xyBnds] = line2points(abc,xx,yy)
 %            returned
 %       yy - 1x2 array defining lower and upper y limits for points
 %            returned
+%     ZERO - [OPTIONAL] scalar value that is very close to 0. Default value
+%            is 1e-8.
 %
 %   Output(s)
 %       xy - 2x2 array defining points on the line bounded by xx and yy
@@ -23,11 +25,8 @@ function [xy,xyBnds] = line2points(abc,xx,yy)
 %   17Sep2024 - For three or more points, choose the farthest two
 %   19Sep2024 - Added ZERO
 
-% TODO - make this an input & set improved default values
-ZERO = 1e-8;
-
 %% Check input(s)
-narginchk(3,3);
+narginchk(3,4);
 
 if numel(abc) ~= 3 || ~isnumeric(abc)
     error('Line must be defined using three constants.');
@@ -39,6 +38,11 @@ end
 
 if numel(yy) ~= 2 || ~isnumeric(yy)
     error('Bounds for y must be defined using two values.');
+end
+
+if nargin < 4
+    % Set default value
+    ZERO = 1e-8;
 end
 
 %% Define points
