@@ -21,6 +21,10 @@ function [xy,xyBnds] = line2points(abc,xx,yy)
 
 % Updates
 %   17Sep2024 - For three or more points, choose the farthest two
+%   19Sep2024 - Added ZERO
+
+% TODO - make this an input & set improved default values
+ZERO = 1e-8;
 
 %% Check input(s)
 narginchk(3,3);
@@ -69,8 +73,8 @@ xyBnds = [xy(:,1),xy(:,end)];
 
 %% Find the points inside of the limits
 tf = ...
-    xy(1,:) >= xx(1) & xy(1,:) <= xx(2) & ...
-    xy(2,:) >= yy(1) & xy(2,:) <= yy(2);
+    xy(1,:) >= xx(1)*(1-ZERO) & xy(1,:) <= xx(2)*(1+ZERO) & ...
+    xy(2,:) >= yy(1)*(1-ZERO) & xy(2,:) <= yy(2)*(1+ZERO);
 
 switch nnz(tf)
     case 1
