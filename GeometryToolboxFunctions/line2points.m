@@ -113,12 +113,39 @@ for i = 1:size(edge_i,1)
     end
 end
 
+% SPECIAL CASE: Line contains at least one segment end-point
+m = size(xy,2);
+if m > 2
+    % Define distances between points
+    d = inf(m,m);
+    for i = 1:(m-1)
+        for j = (i+1):m
+            d(i,j) = norm( xy(:,i) - xy(:,j) );
+        end
+    end
+    
+    for i = 1:(m-2)
+        [~,jj] = find(d == min(min(d)),1,'first');
+        xyBnds = [xyBnds,xy(:,jj)];
+        xy(:,jj) = [];
+        d(jj,:) = [];
+        d(:,jj) = [];
+    end
+end
+
 % DEBUG PLOT
 if debug
-    plt_xy = plot(axs,xy(1,:),xy(2,:),'x');
-    plt_xyBnds = plot(axs,xyBnds(1,:),xyBnds(2,:),'-');  
+    % Plot xy
+    plt_xy = plot(axs,xy(1,:),xy(2,:),'x'); 
     for j = 1:size(xy,2)
-        txt_Xint = text(axs,xy(1,j),xy(2,j),sprintf('%d',j),...
-            'HorizontalAlignment','center','VerticalAlignment','middle');
+        txt_xy(j) = text(axs,xy(1,j),xy(2,j),sprintf('s_{%d}',j),...
+            'HorizontalAlignment','left','VerticalAlignment','bottom');
+    end
+
+    % Plot xyBnds
+    plt_xyBnds = plot(axs,xyBnds(1,:),xyBnds(2,:),'-'); 
+    for j = 1:size(xy,2)
+        txt_xy(j) = text(axs,xyBnds(1,j),xyBnds(2,j),sprintf('b_{%d}',j),...
+            'HorizontalAlignment','left','VerticalAlignment','bottom');
     end
 end
