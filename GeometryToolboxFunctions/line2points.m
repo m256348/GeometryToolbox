@@ -146,6 +146,6 @@ if debug
     plt_xyBnds = plot(axs,xyBnds(1,:),xyBnds(2,:),'-'); 
     for j = 1:size(xy,2)
         txt_xy(j) = text(axs,xyBnds(1,j),xyBnds(2,j),sprintf('b_{%d}',j),...
-            'HorizontalAlignment','left','VerticalAlignment','bottom');
+            'HorizontalAlignment','right','VerticalAlignment','bottom');
     end
 end
