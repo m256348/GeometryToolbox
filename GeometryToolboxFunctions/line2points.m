@@ -17,13 +17,16 @@ function [xy,xyBnds] = line2points(abc,xx,yy,ZERO)
 %           xy(:,1) - x/y coordinates of point 1
 %           xy(:,2) - x/y coordinates of point 2
 %
-%   See also fitPlane plotLine
+%   See also fitPlane plotLine intersectLineSegment intersectLineLine
 %
 %   M. Kutzer, 14May2024, USNA
 
 % Updates
 %   17Sep2024 - For three or more points, choose the farthest two
 %   19Sep2024 - Added ZERO
+%   19Sep2024 - Revised to use intersectLineSegment and intersectLineLine
+
+debug = false;
 
 %% Check input(s)
 narginchk(3,4);
@@ -45,61 +48,77 @@ if nargin < 4
     ZERO = 1e-8;
 end
 
-%% Define points
-% Define x = (-b/a)*y + (-c/a)
-x_abc = @(y,abc)(-abc(2)/abc(1))*y + (-abc(3)/abc(1));
-
-% Define y = (-a/b)*x + (-c/b)
-y_abc = @(x,abc)(-abc(1)/abc(2))*x + (-abc(3)/abc(2));
-
-% Define bounded segments by finding where line intersects with axes
-% limits
-% -> x-lower
-xy(1,1) = xx(1);
-xy(2,1) = y_abc(xx(1),abc);
-% -> x-upper
-xy(1,2) = xx(2);
-xy(2,2) = y_abc(xx(2),abc);
-% -> y-lower
-xy(1,3) = x_abc(yy(1),abc);
-xy(2,3) = yy(1);
-% -> y-upper
-xy(1,4) = x_abc(yy(2),abc);
-xy(2,4) = yy(2);
-
-%% Define unique points 
-xy = unique(xy.','rows').';
-
-%% Define "bounds"
-% This term is loosly defined! 
-% TODO - do this properly
-xyBnds = [xy(:,1),xy(:,end)];
-
-%% Find the points inside of the limits
-tf = ...
-    xy(1,:) >= xx(1)*(1-ZERO) & xy(1,:) <= xx(2)*(1+ZERO) & ...
-    xy(2,:) >= yy(1)*(1-ZERO) & xy(2,:) <= yy(2)*(1+ZERO);
-
-switch nnz(tf)
-    case 0
-        % No point is within the specified limits
-        xy = [];
-    case 1
-        % Only one point is within the specified limits
-        xy = [];
-    case 2
-        % Two points returned (expected result)
-        xy = xy(:,tf);
-    otherwise
-        %{
-        % Multiple points returned (keep first two)
-        xy = xy(:,1:2);
-        %}
-        idxPairs = nchoosek(find(tf),2);
-        for i = 1:size(idxPairs,1)
-            dxy(i) = norm(xy(:,idxPairs(i,1)) - xy(:,idxPairs(i,2)));
-        end
-        idxPair = find(dxy == max(dxy),1,'first');
-        xy = xy(:,idxPairs(idxPair,:));
+%% Setup debug plot
+if debug
+    fig = figure('Name','line2points, debug = true');
+    axs = axes('Parent',fig,'NextPlot','add','DataAspectRatio',[1 1 1]);
 end
 
+%% Ensure proper ordering
+xx = sort(xx);
+yy = sort(yy);
+
+%% Define corner points
+xyC = [...
+    xx(1), xx(2), xx(2), xx(1);...
+    yy(1), yy(1), yy(2), yy(2)];
+
+% DEBUG PLOT
+if debug
+    plt_xyC = plot(axs,xyC(1,:),xyC(2,:),'oc');
+
+    for i = 1:size(xyC,2)
+        txt_xyC = text(axs,xyC(1,i),xyC(2,i),sprintf('%d',i),...
+            'HorizontalAlignment','center','VerticalAlignment','top');
+    end
+end
+
+%% Define edge indices
+edge_i = [...
+    1,2;...
+    2,3;...
+    3,4;...
+    4,1];
+
+%% Define edge segments
+xy = [];
+xyBnds = [];
+for i = 1:size(edge_i,1)
+    % Fit segment
+    seg = fitSegment(xyC(:,edge_i(i,:)));
+    
+    % Find the intersection between line and segment
+    Xint = intersectLineSegment(abc,seg,ZERO);
+    
+    % SPECIAL CASE: Parallel, overlapping line and segment
+    if size(Xint,2) == 2
+        xy = Xint;
+        xyBnds = Xint;
+        break
+    end
+
+    % Only consider the single intersection case
+    %   - Two intersections should be assounted for with adjacent edges
+    if size(Xint,2) == 1
+        xy = [xy, Xint];
+    else
+        abc2 = fitLine(xyC(:,edge_i(i,:)));
+        Xint = intersectLineLine(abc,abc2);
+        xyBnds = [xyBnds,Xint];
+    end
+    
+    % DEBUG PLOT
+    if debug
+        plt_seg = plot(axs,seg(1,:)*[0,1;1,1],seg(2,:)*[0,1;1,1],'-c');
+    end
+end
+
+% DEBUG PLOT
+if debug
+    plt_xy = plot(axs,xy(1,:),xy(2,:),'x');
+    plt_xyBnds = plot(axs,xyBnds(1,:),xyBnds(2,:),'-');  
+    for j = 1:size(xy,2)
+        txt_Xint = text(axs,xy(1,j),xy(2,j),sprintf('%d',j),...
+            'HorizontalAlignment','center','VerticalAlignment','middle');
+    end
+end
