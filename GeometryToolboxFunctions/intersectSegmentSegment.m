@@ -119,6 +119,7 @@ intEV = false;  % No edge/vertex intersections
 intVV = false;  % No vertex/vertex intresections
 intPt = [];     % No points of intersection
 
+%{
 %% Fit lines
 abc1 = fitLine(p1);
 abc2 = fitLine(p2);
@@ -171,9 +172,7 @@ end
 
 %% OLD METHOD
 return
-
-
-
+%}
 
 %% Find the coefficients for the segments
 M1 = fitSegment(p1(:,1),p1(:,2));
