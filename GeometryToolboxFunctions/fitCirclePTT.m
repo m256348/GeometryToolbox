@@ -40,6 +40,8 @@ function [cfit,Xint_cfit] = fitCirclePTT(X,abc1,abc2,varargin)
 %               Each of these points results from the two possible +/- 
 %               orientations of Line i.
 %   05Sep2024 - Updated to allow user to specify debug and ZERO.
+%   10Sep2024 - Updated to use perpenticular lines to compensate for
+%               imaginary values of h
 
 %% Check input(s)
 narginchk(3,5);
@@ -130,7 +132,6 @@ if all(tfSpecialCase,'all')
     Xint_cfit{1} = X;
     return
 end
-
 
 %% Create debug plot
 if debug
@@ -341,6 +342,41 @@ phi2 = phi2_TMP;
 dphi = dphi_TMP;
 phiB = phiB_TMP;
 
+%% Mitigate imaginary h values
+% Define length along circle
+L = norm(X - Xint);
+for i = 1:numel(h)
+    % Do not alter real values
+    if isreal(h(i))
+        continue
+    end
+    
+    % Line 1 intersect with circle
+    X_L1(1,:) = L*cos(phi1(i)) + Xint(1);
+    X_L1(2,:) = L*sin(phi1(i)) + Xint(2);
+    % Line 2 intersect with circle
+    X_L2(1,:) = L*cos(phi2(i)) + Xint(1);
+    X_L2(2,:) = L*sin(phi2(i)) + Xint(2);
+    
+    % Define perpendicular lines direction
+    p_abc1 = nCross(abc1(1,1:2));
+    p_abc2 = nCross(abc2(1,1:2));
+    % Define perpendicular lines offset
+    p_abc1(3) = -p_abc1(1:2)*X_L1;
+    p_abc2(3) = -p_abc2(1:2)*X_L2;
+    
+    % Define the intersection of perpendicular lines
+    Xp_int = intersectLineLine(p_abc1,p_abc2);
+
+    % Update h
+    h(i) = norm(Xp_int - Xint);
+
+    % DEBUG PLOT
+    if debug
+        plotLine(axs,p_abc1,'-y','LineWidth',1);
+        plotLine(axs,p_abc2,'-c','LineWidth',1);
+    end
+end
 %% Recover circle parameters
 for i = 1:numel(h)
     X0(1,i) = h(i)*cos(phiB(i)) + Xint(1);
