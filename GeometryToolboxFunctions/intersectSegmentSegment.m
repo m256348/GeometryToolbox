@@ -1,4 +1,4 @@
-function [intEE,intEV,intVV,intPt] = intersectSegmentSegment(p1,p2)
+function [intEE,intEV,intVV,intPt] = intersectSegmentSegment(p1,p2,ZERO)
 %INTERSECTSEGMENTSEGMENT finds intersection(s) between two segments.
 %   [intEE,intEV,intVV,intPt] = INTERSECTSEGMENTSEGMENT(p1,p2) fits a
 %   parametric line segment from p1(:,1) to p1(:,2), and a segment from 
@@ -10,6 +10,8 @@ function [intEE,intEV,intVV,intPt] = intersectSegmentSegment(p1,p2)
 %            column vectors
 %       p2 - nx2 array containing n-dimensional segment end-points as 
 %            column vectors
+%     ZERO - [OPTIONAL] scalar positive value close to zero. Default is
+%            1e-8.
 %
 %       In 2D:
 %           p1 = [x1_1, x1_2; y1_1, y1_2]
@@ -87,7 +89,7 @@ function [intEE,intEV,intVV,intPt] = intersectSegmentSegment(p1,p2)
 %   24Jul2020 - Extended to n-dimensional segments
 
 %% Check inputs
-narginchk(2,2);
+narginchk(2,3);
 if size(p1,2) ~= 2
     error('First segment must be defined using two end-points.');
 end
@@ -99,13 +101,66 @@ if size(p1,1) ~= size(p2,1)
 end
 
 %% Define "zero"
-ZERO = 1e-6;    % TODO - use zeroFPError.m
+if nargin < 3
+    ZERO = 1e-8;    % TODO - use zeroFPError.m
+else
+    if numel(ZERO) ~= 1
+        error('ZERO must be a positive scalar.');
+    end
+
+    if ZERO < 0
+        error('ZERO must be a positive scalar.');
+    end
+end
 
 %% Initialize defaults
 intEE = false;  % No edge/edge intersections
 intEV = false;  % No edge/vertex intersections
 intVV = false;  % No vertex/vertex intresections
 intPt = [];     % No points of intersection
+
+%% Fit lines
+abc1 = fitLine(p1);
+abc2 = fitLine(p2);
+
+%% Fit segments
+seg1 = fitSegment(p1);
+seg2 = fitSegment(p2);
+
+%% Calculate line intersection
+Xint = intersectLineLine(abc1,abc2);
+
+%% Define segment intersection
+[s(1),tfOnSeg(1)] = segmentX2s(seg1,Xint,ZERO);
+[s(2),tfOnSeg(2)] = segmentX2s(seg2,Xint,ZERO);
+
+%% Interpret results
+if any(~tfOnSeg)
+    % No intersection
+    return
+end
+
+intPt = Xint;
+tfEdge = s > ZERO & s < 1-ZERO;
+tfVert = s >= -ZERO & s <= 1+ZERO;
+
+if all(tfEdge,'all')
+    intEE = true;
+    return
+end
+
+if all(tfVert,'all')
+    intVV = true;
+    return
+end
+
+intEV = true;
+
+%% OLD METHOD
+return
+
+
+
 
 %% Find the coefficients for the segments
 M1 = fitSegment(p1(:,1),p1(:,2));
