@@ -151,10 +151,23 @@ end
 
 if all(tfVert,'all')
     intVV = true;
+    % Reduce intersection error
+    % -> Average the two shared end-point locations
+    intPt = mean([ ...
+        seg1*[round(s(1)); 1],...
+        seg2*[round(s(2)); 1] ],2);
     return
 end
 
 intEV = true;
+% Reduce error
+% -> Assume the end-point is the point
+if tfEdge(1)
+    intPt = seg1*[round(s(1)); 1];
+end
+if tfEdge(2)
+    intPt = seg2*[round(s(2)); 1];
+end
 
 %% OLD METHOD
 return
