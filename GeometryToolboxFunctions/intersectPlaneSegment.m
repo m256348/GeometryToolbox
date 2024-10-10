@@ -46,7 +46,7 @@ pnt = [];
 M = pnts*[0, 1; 1, 1]^(-1);
 
 %% Check for line parallel with plane
-if abs( dot(M(:,1),abcd(1:3).') ) < ZERO
+if abs( dot( M(:,1), abcd(1:3).' ) ) < ZERO
     % Segment and plane are parallel
     if any( abs( abcd*[pnts; 1,1] ) < ZERO )
         pnt = pnts;
