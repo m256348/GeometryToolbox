@@ -24,7 +24,11 @@ function pnt = intersectPlaneSegment(abcd,pnts,ZERO)
 %   10Oct2024 - Completed function
 
 %% Check inputs
-narginchk(2,2);
+narginchk(2,3);
+
+if nargin < 3
+    ZERO = 1e-8;
+end
 
 if numel(abcd) ~= 4
     error('Plane must be defined using 4 coefficients.');
