@@ -1,8 +1,9 @@
-function pnt = intersectPlaneSegment(abcd,pnts,ZERO)
+function [pnt,tfEndPoint] = intersectPlaneSegment(abcd,pnts,ZERO)
 % INTERSECTPLANSEGMENT finds the point of intersection, if it exists,
 % between a plane and a segment.
-%   pnt = INTERSECTPLANSEGMENT(abcd,pnts)
-%
+%   [pnt,tfEndPoint] = intersectPlaneSegment(abcd,pnts)
+%   ___ = intersectPlaneSegment(abcd,pnts,ZERO)
+%   
 %   Inputs:
 %       abcd - 1x4 array containing the coefficients of a plane
 %       pnts - 3x2 array containing two 3D end-points of a segment
@@ -10,9 +11,12 @@ function pnt = intersectPlaneSegment(abcd,pnts,ZERO)
 %              value is 1e-8.
 %
 %   Output(s)
-%       pnt - 3x1 if a single point of intersection exists
-%       pnt - 3x2 if segment is contained in the plane
-%       pnt - empty set if no intersection exists
+%              pnt - 3xN array describing point(s) of intersection
+%                  -> 3x0 (empty set) if no intersection exists
+%                  -> 3x1 if a single point of intersection exists
+%                  -> 3x2 if segment is contained in the plane
+%       tfEndPoint - 1x2 logical array describing whether one of both end
+%                    point(s) of the segment lie on the plane. 
 %
 %   References:
 %       [1] https://mathworld.wolfram.com/Line-PlaneIntersection.html
@@ -39,8 +43,9 @@ if size(pnts,1) ~= 3 || size(pnts,2) ~= 2
     error('Points in 3D must be defined as a 3x2 array');
 end
 
-%% Set default output
-pnt = [];
+%% Set default outputs
+pnt        = zeros(3,0);
+tfEndPoint = false(1,2);
 
 %% Fit parametric line where s \in [0,1] defines the segment
 M = pnts*[0, 1; 1, 1]^(-1);
@@ -51,6 +56,10 @@ if abs( dot( M(:,1), abcd(1:3).' ) ) < ZERO
     if any( abs( abcd*[pnts; 1,1] ) < ZERO )
         pnt = pnts;
     end
+
+    % Define end-point condition
+    tfEndPoint = true(1,2);
+
     return
 end
 
@@ -64,6 +73,22 @@ d = abcd(4);
 
 s = (-d - abc*m2)/(abc*m1);
 
-if s >= 0 && s <= 1
+% Check specific cases
+% -> Point 1 on plane
+if abs(s) <= ZERO
+    pnt = pnts(:,1);
+    tfEndPoint = [true,false];
+    return
+end
+% -> Point 2 on plane
+if abs(s-1) <= ZERO
+    pnt = pnts(:,2);
+    tfEndPoint = [false,true];
+    return
+end
+% -> Neither point on plane
+%if s >= 0 && s <= 1
+if (s+ZERO) >= 0 && (s-ZERO) <= 1
     pnt = M*[s; 1];
+    tfEndPoint = false(1,2);
 end
