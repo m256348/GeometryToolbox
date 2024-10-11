@@ -17,10 +17,10 @@ function p = plotPlane(varargin)
 %
 %   M. Kutzer, 27May2021, USNA
 
-debugON = true;
+debugON = false;
 
 %% Parse inputs
-narginchk(3,4);
+narginchk(1,4);
 
 if numel(varargin{1}) == 1 && ishandle(varargin{1})
     axs = varargin{1};
@@ -30,8 +30,21 @@ else
 end
 
 abcd = varargin{1};
-X = varargin{2};
-s = varargin{3};
+
+% Set defaults
+Xlim(1,:) = xlim(axs);
+Xlim(2,:) = ylim(axs);
+Xlim(3,:) = zlim(axs);
+s = norm( diff(Xlim,1,2) )/2;
+X = mean(Xlim,2);
+
+if numel(varargin) > 1
+    X = varargin{2};
+end
+
+if numel(varargin) > 2
+    s = varargin{3};
+end
 
 %% Check inputs
 if size(abcd,1) ~= 1 || size(abcd,2) ~= 4
@@ -60,7 +73,7 @@ H_p2a(1:3,1:3) = [x_hat,y_hat,z_hat];
 H_p2a(1:3,4) = X;
 
 if debugON
-    h_p2a = triad('Parent',axs,'Matrix',H_p2a,'Scale',100,'LineWidth',2,...
+    h_p2a = triad('Parent',axs,'Matrix',H_p2a,'Scale',s,'LineWidth',2,...
         'AxisLabels',{'x_p','y_p','z_p'});
 end
 
