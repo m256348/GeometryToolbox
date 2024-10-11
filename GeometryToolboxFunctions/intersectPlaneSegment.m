@@ -21,11 +21,19 @@ function [pnt,tfEndPoint] = intersectPlaneSegment(abcd,pnts,ZERO)
 %   References:
 %       [1] https://mathworld.wolfram.com/Line-PlaneIntersection.html
 %
+%   NOTE: This function returns segment end-points if they are within ZERO
+%         of the plane. 
+%       -> To ensure the "true" intersection of segment end-points with
+%          the plane, use:
+%               [pnt,tfEndPoint] = intersectPlaneSegment(___)
+%               pnt = proj2plane(pnt);
+%
 %   M. Kutzer, 12Jun2020, USNA
 
 % Updates:
 %   27May2021 - Updated function
 %   10Oct2024 - Completed function
+%   11Oct2024 - Updated documentation
 
 %% Check inputs
 narginchk(2,3);
