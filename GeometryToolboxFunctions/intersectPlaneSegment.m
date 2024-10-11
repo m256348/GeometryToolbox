@@ -63,11 +63,10 @@ if abs( dot( M(:,1), abcd(1:3).' ) ) < ZERO
     % Segment and plane are parallel
     if any( abs( abcd*[pnts; 1,1] ) < ZERO )
         pnt = pnts;
+        % Define end-point condition
+        tfEndPoint = true(1,2);
     end
-
-    % Define end-point condition
-    tfEndPoint = true(1,2);
-
+    
     return
 end
 
